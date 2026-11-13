@@ -1,0 +1,144 @@
+@use 'mixins' as m;
+
+:host {
+  display: block;
+  min-height: 0;
+  height: 100%;
+}
+
+.viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 18rem;
+  overflow: hidden;
+  border-radius: var(--i3d-radius-lg);
+  border: 1px solid var(--i3d-border);
+  background-color: var(--i3d-bg-sunken);
+  background-image: radial-gradient(
+    120% 120% at 50% 0%,
+    var(--i3d-surface) 0%,
+    var(--i3d-bg-sunken) 60%,
+    var(--i3d-bg) 100%
+  );
+
+  // The canvas is transparent for these two, so the backdrop does the work.
+  &[data-background='light'] {
+    background-image: radial-gradient(120% 120% at 50% 0%, #ffffff 0%, #e9edf6 100%);
+  }
+
+  &[data-background='transparent'] {
+    background-image:
+      linear-gradient(
+        45deg,
+        var(--i3d-bg-sunken) 25%,
+        transparent 25%,
+        transparent 75%,
+        var(--i3d-bg-sunken) 75%
+      ),
+      linear-gradient(
+        45deg,
+        var(--i3d-bg-sunken) 25%,
+        transparent 25%,
+        transparent 75%,
+        var(--i3d-bg-sunken) 75%
+      );
+    background-size: 1.25rem 1.25rem;
+    background-position:
+      0 0,
+      0.625rem 0.625rem;
+  }
+
+  &__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none; // let OrbitControls own the gestures
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--i3d-space-3);
+    padding: var(--i3d-space-4);
+    text-align: center;
+    pointer-events: none;
+
+    &--empty {
+      color: var(--i3d-text-subtle);
+    }
+  }
+
+  &__empty-icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: var(--i3d-space-1);
+    border-radius: var(--i3d-radius-full);
+    color: var(--i3d-text-subtle);
+    background: var(--i3d-surface);
+    border: 1px solid var(--i3d-border);
+  }
+
+  &__overlay-title {
+    font-size: var(--i3d-text-sm);
+    font-weight: 550;
+    color: var(--i3d-text);
+  }
+
+  &__overlay-hint {
+    max-width: 26ch;
+    font-size: var(--i3d-text-xs);
+    color: var(--i3d-text-subtle);
+  }
+
+  &__progress {
+    width: 8rem;
+    height: 0.1875rem;
+    overflow: hidden;
+    border-radius: var(--i3d-radius-full);
+    background: var(--i3d-border);
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--i3d-accent);
+      transition: width var(--i3d-duration) var(--i3d-ease);
+    }
+  }
+
+  &__hud,
+  &__tools {
+    position: absolute;
+    display: flex;
+    gap: var(--i3d-space-2);
+  }
+
+  &__hud {
+    top: var(--i3d-space-3);
+    left: var(--i3d-space-3);
+    flex-wrap: wrap;
+  }
+
+  &__tools {
+    right: var(--i3d-space-3);
+    bottom: var(--i3d-space-3);
+    flex-direction: column;
+  }
+
+  &__chip {
+    padding: 0.1875rem var(--i3d-space-2);
+    font-size: var(--i3d-text-2xs);
+    color: var(--i3d-text-muted);
+    background: var(--i3d-surface-glass);
+    border: 1px solid var(--i3d-border);
+    border-radius: var(--i3d-radius-full);
+    backdrop-filter: blur(6px);
+  }
+}

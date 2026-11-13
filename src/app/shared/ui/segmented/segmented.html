@@ -1,0 +1,21 @@
+<div class="i3d-segmented" role="radiogroup" [attr.aria-label]="label()">
+  @for (option of options(); track option.id) {
+    <button
+      #option
+      type="button"
+      role="radio"
+      class="i3d-segmented__option"
+      [class.is-active]="option.id === value()"
+      [attr.aria-checked]="option.id === value()"
+      [attr.tabindex]="option.id === value() ? 0 : -1"
+      [disabled]="disabled()"
+      (click)="select(option.id)"
+      (keydown)="onKeydown($event, $index)"
+    >
+      @if (option.icon) {
+        <i3d-icon [name]="option.icon" [size]="16" />
+      }
+      <span>{{ option.label }}</span>
+    </button>
+  }
+</div>

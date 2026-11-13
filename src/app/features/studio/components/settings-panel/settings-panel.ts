@@ -1,0 +1,112 @@
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import {
+  MODE_CATALOG,
+  SETTING_RANGES,
+  type DepthSource,
+  type GenerationMode,
+  type GenerationSettings,
+  type MaterialPreset,
+  type PresentationSettings,
+  type ViewportBackground,
+} from '@core/models/generation.model';
+import type { ComplexityEstimate } from '@core/models/estimate';
+import {
+  ButtonDirective,
+  Icon,
+  Segmented,
+  Select,
+  Slider,
+  Toggle,
+  type SelectOption,
+} from '@shared/ui';
+
+type Option<T extends string> = SelectOption<T>;
+
+/**
+ * Presentational control surface for the studio.
+ *
+ * Holds no state of its own: it renders the settings it is given and reports
+ * intent upward. That keeps every rule (validation, regeneration, persistence)
+ * in the store, and makes the panel trivially testable.
+ */
+@Component({
+  selector: 'i3d-settings-panel',
+  imports: [Icon, ButtonDirective, Segmented, Select, Slider, Toggle, DecimalPipe],
+  templateUrl: './settings-panel.html',
+  styleUrl: './settings-panel.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'i3d-settings-panel' },
+})
+export class SettingsPanel {
+  readonly settings = input.required<GenerationSettings>();
+  readonly presentation = input.required<PresentationSettings>();
+  readonly estimate = input.required<ComplexityEstimate>();
+  readonly autoGenerate = input(false);
+
+  readonly settingsChange = output<Partial<GenerationSettings>>();
+  readonly presentationChange = output<Partial<PresentationSettings>>();
+  readonly modeChange = output<GenerationMode>();
+  readonly autoGenerateChange = output<boolean>();
+  readonly regenerate = output<void>();
+
+  protected readonly ranges = SETTING_RANGES;
+
+  protected readonly modeOptions: readonly Option<GenerationMode>[] = [
+    { id: 'relief', label: 'Relief' },
+    { id: 'extrude', label: 'Extrude' },
+    { id: 'voxel', label: 'Voxel' },
+    { id: 'points', label: 'Points' },
+  ];
+
+  protected readonly depthSources: readonly Option<DepthSource>[] = [
+    { id: 'luminance', label: 'Brightness' },
+    { id: 'alpha', label: 'Transparency' },
+  ];
+
+  protected readonly materials: readonly Option<MaterialPreset>[] = [
+    { id: 'textured', label: 'Source image' },
+    { id: 'vertex-color', label: 'Vertex colours' },
+    { id: 'solid', label: 'Solid colour' },
+    { id: 'clay', label: 'Clay' },
+  ];
+
+  protected readonly backgrounds: readonly Option<ViewportBackground>[] = [
+    { id: 'studio', label: 'Studio' },
+    { id: 'dark', label: 'Dark' },
+    { id: 'light', label: 'Light' },
+    { id: 'transparent', label: 'Checkerboard' },
+  ];
+
+  protected readonly integerFormat = (value: number): string => String(Math.round(value));
+
+  protected readonly modeSummary = computed(() => {
+    const descriptor = MODE_CATALOG[this.settings().mode];
+    return `${descriptor.summary} Best for: ${descriptor.bestFor}.`;
+  });
+
+  protected readonly detailHint = computed(() => {
+    const settings = this.settings();
+    const grid = this.estimate();
+    const suffix = settings.mode === 'points' ? 'samples' : 'grid';
+    return `${grid.vertices.toLocaleString()} ${suffix} · ${grid.triangles.toLocaleString()} triangles`;
+  });
+
+  protected patch(patch: Partial<GenerationSettings>): void {
+    this.settingsChange.emit(patch);
+  }
+
+  protected patchPresentation(patch: Partial<PresentationSettings>): void {
+    this.presentationChange.emit(patch);
+  }
+
+  protected setMode(mode: GenerationMode): void {
+    this.modeChange.emit(mode);
+  }
+
+  protected onColorInput(event: Event): void {
+    this.presentationChange.emit({
+      solidColor: (event.target as HTMLInputElement).value,
+    });
+  }
+}

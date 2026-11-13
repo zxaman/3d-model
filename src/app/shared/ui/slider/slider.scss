@@ -1,0 +1,108 @@
+@use 'mixins' as m;
+
+.i3d-slider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--i3d-space-2);
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--i3d-space-3);
+
+    label {
+      font-size: var(--i3d-text-sm);
+      color: var(--i3d-text-muted);
+    }
+
+    output {
+      font-family: var(--i3d-font-mono);
+      font-size: var(--i3d-text-xs);
+      color: var(--i3d-text);
+      font-variant-numeric: tabular-nums;
+      padding: 0.0625rem var(--i3d-space-2);
+      border-radius: var(--i3d-radius-sm);
+      background: var(--i3d-bg-sunken);
+      border: 1px solid var(--i3d-border-subtle);
+    }
+  }
+
+  &__hint {
+    font-size: var(--i3d-text-xs);
+    color: var(--i3d-text-subtle);
+  }
+
+  input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 1.125rem;
+    background: transparent;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    @include m.focus-ring(4px);
+
+    &::-webkit-slider-runnable-track {
+      height: 0.3125rem;
+      border-radius: var(--i3d-radius-full);
+      background: linear-gradient(
+        to right,
+        var(--i3d-accent) 0%,
+        var(--i3d-accent) var(--i3d-fill, 50%),
+        var(--i3d-bg-sunken) var(--i3d-fill, 50%),
+        var(--i3d-bg-sunken) 100%
+      );
+      border: 1px solid var(--i3d-border-subtle);
+    }
+
+    &::-moz-range-track {
+      height: 0.3125rem;
+      border-radius: var(--i3d-radius-full);
+      background: var(--i3d-bg-sunken);
+      border: 1px solid var(--i3d-border-subtle);
+    }
+
+    &::-moz-range-progress {
+      height: 0.3125rem;
+      border-radius: var(--i3d-radius-full);
+      background: var(--i3d-accent);
+    }
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 0.875rem;
+      height: 0.875rem;
+      margin-top: -0.3125rem;
+      border-radius: 50%;
+      background: var(--i3d-text);
+      border: 2px solid var(--i3d-accent);
+      box-shadow: var(--i3d-shadow-sm);
+      transition: transform var(--i3d-duration-fast) var(--i3d-ease);
+    }
+
+    &::-moz-range-thumb {
+      width: 0.875rem;
+      height: 0.875rem;
+      border-radius: 50%;
+      background: var(--i3d-text);
+      border: 2px solid var(--i3d-accent);
+      box-shadow: var(--i3d-shadow-sm);
+    }
+
+    &:hover::-webkit-slider-thumb,
+    &:active::-webkit-slider-thumb {
+      transform: scale(1.15);
+    }
+  }
+}

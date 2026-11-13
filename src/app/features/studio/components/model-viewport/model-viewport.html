@@ -1,0 +1,69 @@
+<div class="viewport" [attr.data-background]="presentation().background">
+  <canvas #canvas class="viewport__canvas"></canvas>
+
+  @if (busy()) {
+    <div class="viewport__overlay" role="status">
+      <i3d-spinner />
+      <p class="viewport__overlay-title">{{ phaseLabel() }}</p>
+      <div class="viewport__progress">
+        <span [style.width.%]="progress() * 100"></span>
+      </div>
+    </div>
+  } @else if (unsupported()) {
+    <div class="viewport__overlay viewport__overlay--empty">
+      <span class="viewport__empty-icon"><i3d-icon name="warning" [size]="24" /></span>
+      <p class="viewport__overlay-title">3D preview unavailable</p>
+      <p class="viewport__overlay-hint">
+        This browser could not start WebGL. Generation and export still work.
+      </p>
+    </div>
+  } @else if (object() === null) {
+    <div class="viewport__overlay viewport__overlay--empty">
+      <span class="viewport__empty-icon"><i3d-icon name="cube" [size]="26" /></span>
+      <p class="viewport__overlay-title">No model yet</p>
+      <p class="viewport__overlay-hint">Drop an image on the left to build your first model</p>
+    </div>
+  }
+
+  @if (stats(); as meshStats) {
+    <div class="viewport__hud">
+      <span class="viewport__chip u-mono" [title]="'Vertices'">
+        {{ formatCount(meshStats.vertices) }} verts
+      </span>
+      <span class="viewport__chip u-mono" [title]="'Triangles'">
+        {{ formatCount(meshStats.triangles) }} tris
+      </span>
+      @if (generationMs() !== null) {
+        <span class="viewport__chip u-mono" [title]="'Generation time'">
+          {{ generationMs() | number: '1.0-0' }} ms
+        </span>
+      }
+    </div>
+  }
+
+  <div class="viewport__tools">
+    <button
+      type="button"
+      i3dButton="secondary"
+      [size]="'sm'"
+      [iconOnly]="true"
+      (click)="frame()"
+      [attr.aria-label]="'Frame the model'"
+      [disabled]="object() === null"
+    >
+      <i3d-icon name="target" [size]="16" />
+    </button>
+
+    <button
+      type="button"
+      i3dButton="secondary"
+      [size]="'sm'"
+      [iconOnly]="true"
+      [attr.aria-pressed]="presentation().autoRotate"
+      (click)="autoRotateChange.emit(!presentation().autoRotate)"
+      [attr.aria-label]="'Toggle auto-rotate'"
+    >
+      <i3d-icon name="rotate" [size]="16" />
+    </button>
+  </div>
+</div>

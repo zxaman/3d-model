@@ -1,0 +1,70 @@
+<div class="studio">
+  <aside class="studio__panel u-scroll-y">
+    <header class="studio__intro">
+      <h1>Studio</h1>
+      <p>Turn any image into an exportable 3D model — entirely in your browser.</p>
+    </header>
+
+    @if (store.source(); as source) {
+      <i3d-image-dropzone
+        [compact]="true"
+        [fileName]="store.name()"
+        [preview]="source.thumbnail"
+        [dimensions]="dimensions()"
+        (fileSelected)="loadFile($event)"
+        (clear)="store.reset()"
+      />
+
+      <label class="studio__field">
+        <span>Project name</span>
+        <input
+          type="text"
+          [value]="store.name()"
+          maxlength="60"
+          placeholder="Untitled model"
+          (input)="onName($event)"
+        />
+      </label>
+    } @else {
+      <i3d-image-dropzone (fileSelected)="loadFile($event)" />
+    }
+
+    <i3d-settings-panel
+      [settings]="store.settings()"
+      [presentation]="store.presentation()"
+      [estimate]="store.estimate()"
+      [autoGenerate]="store.autoGenerate()"
+      (settingsChange)="store.patchSettings($event)"
+      (presentationChange)="store.patchPresentation($event)"
+      (modeChange)="store.setMode($event)"
+      (autoGenerateChange)="setAutoGenerate($event)"
+      (regenerate)="regenerate()"
+    />
+  </aside>
+
+  <section class="studio__stage">
+    <i3d-model-viewport
+      [object]="store.modelObject()"
+      [presentation]="store.presentation()"
+      [busy]="store.isBusy()"
+      [progress]="store.progress()"
+      [phase]="store.phase()"
+      [stats]="store.stats()"
+      [generationMs]="store.generationMs()"
+      (autoRotateChange)="store.patchPresentation({ autoRotate: $event })"
+    />
+
+    <i3d-export-bar
+      [mode]="store.mode()"
+      [stats]="store.stats()"
+      [generationMs]="store.generationMs()"
+      [canExport]="store.canExport()"
+      [canSave]="store.canSave()"
+      [isDirty]="store.isDirty()"
+      [busy]="store.isBusy()"
+      (exportFormat)="exportModel($event)"
+      (save)="store.save()"
+      (snapshot)="snapshot()"
+    />
+  </section>
+</div>

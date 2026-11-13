@@ -1,0 +1,24 @@
+<div class="i3d-select">
+  @if (label()) {
+    <label [for]="inputId">{{ label() }}</label>
+  }
+
+  <div class="i3d-select__control">
+    <select
+      [id]="inputId"
+      [value]="value()"
+      [disabled]="disabled()"
+      (change)="onChange($event)"
+      [attr.aria-describedby]="hint() ? hintId : null"
+    >
+      @for (option of options(); track option.id) {
+        <option [value]="option.id">{{ option.label }}</option>
+      }
+    </select>
+    <i3d-icon name="chevron-right" [size]="16" />
+  </div>
+
+  @if (hint()) {
+    <p class="i3d-select__hint" [id]="hintId">{{ hint() }}</p>
+  }
+</div>

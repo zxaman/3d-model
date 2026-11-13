@@ -1,0 +1,105 @@
+@use 'mixins' as m;
+
+.i3d-toasts {
+  position: fixed;
+  right: var(--i3d-space-4);
+  bottom: var(--i3d-space-4);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: var(--i3d-space-2);
+  width: min(24rem, calc(100vw - var(--i3d-space-8)));
+  pointer-events: none;
+}
+
+.i3d-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--i3d-space-3);
+  padding: var(--i3d-space-3);
+  pointer-events: auto;
+  background: var(--i3d-surface-raised);
+  border: 1px solid var(--i3d-border);
+  border-left: 3px solid var(--i3d-accent);
+  border-radius: var(--i3d-radius-md);
+  box-shadow: var(--i3d-shadow-lg);
+  animation: i3d-toast-in var(--i3d-duration) var(--i3d-ease);
+
+  &[data-kind='success'] {
+    border-left-color: var(--i3d-success);
+
+    i3d-icon {
+      color: var(--i3d-success);
+    }
+  }
+
+  &[data-kind='warning'] {
+    border-left-color: var(--i3d-warning);
+
+    i3d-icon {
+      color: var(--i3d-warning);
+    }
+  }
+
+  &[data-kind='error'] {
+    border-left-color: var(--i3d-danger);
+
+    i3d-icon {
+      color: var(--i3d-danger);
+    }
+  }
+
+  i3d-icon {
+    flex: none;
+    margin-top: 0.125rem;
+    color: var(--i3d-accent);
+  }
+
+  &__body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__message {
+    font-size: var(--i3d-text-sm);
+    color: var(--i3d-text);
+  }
+
+  &__detail {
+    margin-top: 0.125rem;
+    font-size: var(--i3d-text-xs);
+    color: var(--i3d-text-subtle);
+  }
+
+  &__action {
+    flex: none;
+    padding: 0.125rem var(--i3d-space-2);
+    font-size: var(--i3d-text-xs);
+    font-weight: 600;
+    color: var(--i3d-accent);
+    border: 1px solid var(--i3d-accent-border);
+    border-radius: var(--i3d-radius-sm);
+    transition: background var(--i3d-duration-fast) var(--i3d-ease);
+
+    &:hover {
+      background: var(--i3d-accent-soft);
+    }
+  }
+
+  &__close {
+    flex: none;
+    margin: -0.125rem -0.125rem 0 0;
+    color: var(--i3d-text-subtle);
+  }
+}
+
+@keyframes i3d-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

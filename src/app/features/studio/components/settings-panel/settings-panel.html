@@ -1,0 +1,255 @@
+<div class="settings">
+  <section class="settings__block">
+    <h2 class="settings__title">Conversion</h2>
+    <i3d-segmented
+      [label]="'Generation mode'"
+      [options]="modeOptions"
+      [value]="settings().mode"
+      (valueChange)="setMode($event)"
+    />
+    <p class="settings__summary">{{ modeSummary() }}</p>
+  </section>
+
+  <details class="settings__panel" open>
+    <summary>Geometry</summary>
+
+    <div class="settings__fields">
+      <i3d-slider
+        label="Detail"
+        [value]="settings().resolution"
+        [min]="ranges.resolution.min"
+        [max]="ranges.resolution.max"
+        [step]="ranges.resolution.step"
+        [format]="integerFormat"
+        [hint]="detailHint()"
+        (valueChange)="patch({ resolution: $event })"
+      />
+
+      <i3d-slider
+        [label]="
+          settings().mode === 'points'
+            ? 'Height'
+            : settings().mode === 'voxel'
+              ? 'Stack height'
+              : 'Depth'
+        "
+        [value]="settings().depth"
+        [min]="ranges.depth.min"
+        [max]="ranges.depth.max"
+        [step]="ranges.depth.step"
+        (valueChange)="patch({ depth: $event })"
+      />
+
+      <i3d-slider
+        label="Smoothing"
+        [value]="settings().smoothing"
+        [min]="ranges.smoothing.min"
+        [max]="ranges.smoothing.max"
+        [step]="ranges.smoothing.step"
+        [hint]="'Blurs the height field to remove noise'"
+        (valueChange)="patch({ smoothing: $event })"
+      />
+
+      @if (settings().mode !== 'extrude') {
+        <i3d-slider
+          label="Detail recovery"
+          [value]="settings().detail"
+          [min]="ranges.detail.min"
+          [max]="ranges.detail.max"
+          [step]="ranges.detail.step"
+          [hint]="'Unsharp mask — restores crisp edges after smoothing'"
+          (valueChange)="patch({ detail: $event })"
+        />
+      }
+
+      <i3d-slider
+        label="Contrast"
+        [value]="settings().contrast"
+        [min]="ranges.contrast.min"
+        [max]="ranges.contrast.max"
+        [step]="ranges.contrast.step"
+        [hint]="'Gamma curve applied to the heights'"
+        (valueChange)="patch({ contrast: $event })"
+      />
+
+      @switch (settings().mode) {
+        @case ('extrude') {
+          <i3d-slider
+            label="Cut-off"
+            [value]="settings().threshold"
+            [min]="ranges.threshold.min"
+            [max]="ranges.threshold.max"
+            [step]="ranges.threshold.step"
+            [hint]="'Brightness that separates solid from empty'"
+            (valueChange)="patch({ threshold: $event })"
+          />
+        }
+        @case ('voxel') {
+          <i3d-slider
+            label="Stack levels"
+            [value]="settings().voxelLayers"
+            [min]="ranges.voxelLayers.min"
+            [max]="ranges.voxelLayers.max"
+            [step]="ranges.voxelLayers.step"
+            [format]="integerFormat"
+            (valueChange)="patch({ voxelLayers: $event })"
+          />
+        }
+        @case ('points') {
+          <i3d-slider
+            label="Sampling stride"
+            [value]="settings().pointStride"
+            [min]="ranges.pointStride.min"
+            [max]="ranges.pointStride.max"
+            [step]="ranges.pointStride.step"
+            [format]="integerFormat"
+            [hint]="'Higher values keep fewer particles'"
+            (valueChange)="patch({ pointStride: $event })"
+          />
+
+          <i3d-slider
+            label="Particle size"
+            [value]="settings().pointSize"
+            [min]="ranges.pointSize.min"
+            [max]="ranges.pointSize.max"
+            [step]="ranges.pointSize.step"
+            (valueChange)="patch({ pointSize: $event })"
+          />
+        }
+      }
+
+      <i3d-select
+        label="Height from"
+        [value]="settings().depthSource"
+        [options]="depthSources"
+        [hint]="'Alpha is useful for logos on transparent backgrounds'"
+        (valueChange)="patch({ depthSource: $event })"
+      />
+
+      <i3d-toggle
+        label="Invert heights"
+        [checked]="settings().invert"
+        (checkedChange)="patch({ invert: $event })"
+      />
+    </div>
+  </details>
+
+  <details
+    class="settings__panel"
+    [open]="settings().mode === 'relief' || settings().mode === 'extrude'"
+  >
+    <summary>Solid base</summary>
+
+    <div class="settings__fields">
+      <i3d-toggle
+        label="Add a solid base"
+        hint="Closes the model with side walls and a back face — required for 3D printing"
+        [checked]="settings().base"
+        (checkedChange)="patch({ base: $event })"
+      />
+
+      @if (settings().base) {
+        <i3d-slider
+          label="Base thickness"
+          [value]="settings().baseThickness"
+          [min]="ranges.baseThickness.min"
+          [max]="ranges.baseThickness.max"
+          [step]="ranges.baseThickness.step"
+          (valueChange)="patch({ baseThickness: $event })"
+        />
+      }
+    </div>
+  </details>
+
+  <details class="settings__panel">
+    <summary>Appearance</summary>
+
+    <div class="settings__fields">
+      <i3d-select
+        label="Material"
+        [value]="presentation().material"
+        [options]="materials"
+        (valueChange)="patchPresentation({ material: $event })"
+      />
+
+      @if (presentation().material === 'solid') {
+        <label class="settings__color">
+          <span>Colour</span>
+          <input type="color" [value]="presentation().solidColor" (input)="onColorInput($event)" />
+        </label>
+      }
+
+      @if (presentation().material === 'solid' || presentation().material === 'clay') {
+        <i3d-slider
+          label="Roughness"
+          [value]="presentation().roughness"
+          [min]="ranges.roughness.min"
+          [max]="ranges.roughness.max"
+          [step]="ranges.roughness.step"
+          (valueChange)="patchPresentation({ roughness: $event })"
+        />
+
+        <i3d-slider
+          label="Metalness"
+          [value]="presentation().metalness"
+          [min]="ranges.metalness.min"
+          [max]="ranges.metalness.max"
+          [step]="ranges.metalness.step"
+          (valueChange)="patchPresentation({ metalness: $event })"
+        />
+      }
+
+      <i3d-toggle
+        label="Wireframe"
+        [checked]="presentation().wireframe"
+        (checkedChange)="patchPresentation({ wireframe: $event })"
+      />
+    </div>
+  </details>
+
+  <details class="settings__panel">
+    <summary>Viewport</summary>
+
+    <div class="settings__fields">
+      <i3d-select
+        label="Background"
+        [value]="presentation().background"
+        [options]="backgrounds"
+        (valueChange)="patchPresentation({ background: $event })"
+      />
+
+      <i3d-toggle
+        label="Show grid"
+        [checked]="presentation().grid"
+        (checkedChange)="patchPresentation({ grid: $event })"
+      />
+
+      <i3d-toggle
+        label="Auto-rotate"
+        [checked]="presentation().autoRotate"
+        (checkedChange)="patchPresentation({ autoRotate: $event })"
+      />
+
+      <i3d-toggle
+        label="Live regeneration"
+        hint="Rebuild the model automatically while sliders move"
+        [checked]="autoGenerate()"
+        (checkedChange)="autoGenerateChange.emit($event)"
+      />
+
+      @if (!autoGenerate()) {
+        <button type="button" i3dButton="secondary" [block]="true" (click)="regenerate.emit()">
+          <i3d-icon name="refresh" [size]="16" />
+          Regenerate
+        </button>
+      }
+    </div>
+  </details>
+
+  @if (estimate().heavy) {
+    <p class="settings__warning">
+      <i3d-icon name="warning" [size]="15" />
+      About {{ estimate().triangles | number }} triangles — heavy for some devices.
+    </p>
+  }
+</div>

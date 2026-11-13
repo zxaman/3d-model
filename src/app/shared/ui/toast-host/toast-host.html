@@ -1,0 +1,35 @@
+<div class="i3d-toasts" role="region" [attr.aria-label]="'Notifications'">
+  @for (toast of toasts(); track toast.id) {
+    <div
+      class="i3d-toast"
+      [attr.data-kind]="toast.kind"
+      [attr.role]="toast.kind === 'error' ? 'alert' : 'status'"
+    >
+      <i3d-icon [name]="iconFor(toast.kind)" [size]="16" />
+
+      <div class="i3d-toast__body">
+        <p class="i3d-toast__message">{{ toast.message }}</p>
+        @if (toast.detail) {
+          <p class="i3d-toast__detail">{{ toast.detail }}</p>
+        }
+      </div>
+
+      @if (toast.action) {
+        <button type="button" class="i3d-toast__action" (click)="runAction(toast)">
+          {{ toast.action.label }}
+        </button>
+      }
+
+      <button
+        type="button"
+        class="i3d-toast__close"
+        i3dButton="ghost"
+        [iconOnly]="true"
+        (click)="dismiss(toast.id)"
+        [attr.aria-label]="'Dismiss notification'"
+      >
+        <i3d-icon name="close" [size]="14" />
+      </button>
+    </div>
+  }
+</div>

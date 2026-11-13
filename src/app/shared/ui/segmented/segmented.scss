@@ -1,0 +1,49 @@
+@use 'mixins' as m;
+
+.i3d-segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0.1875rem;
+  padding: 0.1875rem;
+  background: var(--i3d-bg-sunken);
+  border: 1px solid var(--i3d-border-subtle);
+  border-radius: var(--i3d-radius-md);
+
+  &__option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--i3d-space-2);
+    padding: 0.4375rem var(--i3d-space-2);
+    font-size: var(--i3d-text-sm);
+    font-weight: 500;
+    color: var(--i3d-text-muted);
+    border-radius: calc(var(--i3d-radius-md) - 0.1875rem);
+    white-space: nowrap;
+    transition:
+      background var(--i3d-duration-fast) var(--i3d-ease),
+      color var(--i3d-duration-fast) var(--i3d-ease);
+
+    @include m.focus-ring;
+
+    @include m.hover {
+      color: var(--i3d-text);
+    }
+
+    &.is-active {
+      color: var(--i3d-text);
+      background: var(--i3d-surface-raised);
+      box-shadow: var(--i3d-shadow-sm);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    span {
+      @include m.truncate;
+    }
+  }
+}
