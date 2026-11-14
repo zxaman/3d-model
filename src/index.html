@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>Image → 3D Studio</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Turn any photo, logo or sketch into an exportable 3D model entirely in your browser. No backend, no uploads — projects are saved to local storage."
+    />
+    <meta name="theme-color" content="#0b0e15" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:title" content="Image → 3D Studio" />
+    <meta
+      property="og:description"
+      content="Browser-only image to 3D model studio. GLB, OBJ, STL and PLY export with no backend."
+    />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="apple-touch-icon" href="logo.svg" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <script>
+      // Apply the persisted theme before first paint to avoid a flash of the wrong
+      // palette. Keep the key in sync with PREFERENCES_KEY in src/app/core/storage/storage-keys.ts.
+      (function () {
+        try {
+          var raw = localStorage.getItem('i3d:v1:preferences');
+          var theme = raw ? JSON.parse(raw).theme : null;
+          if (theme !== 'light' && theme !== 'dark') {
+            theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          }
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          /* private mode / storage disabled — the default dark theme stays */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <i3d-root><p class="app-boot">Starting studio…</p></i3d-root>
+  </body>
+</html>

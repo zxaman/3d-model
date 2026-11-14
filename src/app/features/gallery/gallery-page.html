@@ -1,0 +1,71 @@
+<div class="gallery u-scroll-y">
+  <header class="gallery__head">
+    <div>
+      <h1>Gallery</h1>
+      <p>
+        {{ count() }} project{{ count() === 1 ? '' : 's' }} saved in this browser ·
+        {{ usageLabel() }} of about {{ budgetLabel() }} used
+      </p>
+    </div>
+
+    @if (count() > 0) {
+      <div class="gallery__head-actions">
+        @if (confirmingClear()) {
+          <button type="button" i3dButton="danger" [size]="'sm'" (click)="clearAll()">
+            Delete everything
+          </button>
+          <button
+            type="button"
+            i3dButton="ghost"
+            [size]="'sm'"
+            (click)="confirmingClear.set(false)"
+          >
+            Cancel
+          </button>
+        } @else {
+          <button
+            type="button"
+            i3dButton="ghost"
+            [size]="'sm'"
+            (click)="startClear()"
+            [disabled]="count() === 0"
+          >
+            Clear all
+          </button>
+        }
+      </div>
+    }
+  </header>
+
+  @if (!storageAvailable()) {
+    <p class="gallery__notice">
+      <i3d-icon name="warning" [size]="15" />
+      This browser is blocking local storage (private mode, most likely). Projects will work but
+      disappear when the tab closes.
+    </p>
+  }
+
+  @if (items().length === 0) {
+    <i3d-empty-state
+      icon="folder"
+      heading="No saved projects yet"
+      message="Build a model in the studio and save it — everything stays in this browser, no account and no uploads."
+    >
+      <a i3dButton="primary" routerLink="/studio">
+        <i3d-icon name="sparkles" [size]="16" />
+        Open the studio
+      </a>
+    </i3d-empty-state>
+  } @else {
+    <div class="gallery__grid">
+      @for (project of items(); track project.id) {
+        <i3d-project-card
+          [project]="project"
+          (renameRequest)="rename(project.id, $event)"
+          (duplicate)="duplicate(project.id)"
+          (remove)="remove(project.id)"
+        />
+      }
+    </div>
+  }
+</div>

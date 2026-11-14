@@ -1,0 +1,40 @@
+@if (compact()) {
+  <div class="dropzone dropzone--compact">
+    <img class="dropzone__preview" [src]="preview()" [alt]="'Preview of the selected image'" />
+    <div class="dropzone__meta">
+      <p class="dropzone__name u-truncate">{{ fileName() }}</p>
+      <p class="dropzone__dims u-mono">{{ dimensions() }}</p>
+    </div>
+    <button type="button" i3dButton="ghost" [size]="'sm'" (click)="openPicker()">Change</button>
+    <button
+      type="button"
+      i3dButton="ghost"
+      [size]="'sm'"
+      [iconOnly]="true"
+      (click)="clear.emit()"
+      [attr.aria-label]="'Remove image'"
+    >
+      <i3d-icon name="trash" [size]="15" />
+    </button>
+  </div>
+} @else {
+  <div class="dropzone">
+    <span class="dropzone__icon"><i3d-icon name="upload" [size]="22" /></span>
+    <p class="dropzone__title">Drop an image, paste, or browse</p>
+    <p class="dropzone__hint">PNG, JPG, WebP, GIF or SVG · up to 40 MB</p>
+    <button type="button" i3dButton="secondary" (click)="openPicker()">
+      <i3d-icon name="image" [size]="16" />
+      Choose image
+    </button>
+  </div>
+}
+
+<input
+  #picker
+  class="visually-hidden"
+  type="file"
+  accept="image/*"
+  [attr.aria-hidden]="'true'"
+  tabindex="-1"
+  (change)="onPicked($event)"
+/>

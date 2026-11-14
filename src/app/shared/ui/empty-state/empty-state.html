@@ -1,0 +1,14 @@
+<div class="i3d-empty">
+  <span class="i3d-empty__icon">
+    <i3d-icon [name]="icon()" [size]="24" />
+  </span>
+
+  <div class="i3d-empty__body">
+    <h3>{{ heading() }}</h3>
+    <p>{{ message() }}</p>
+  </div>
+
+  <div class="i3d-empty__actions">
+    <ng-content />
+  </div>
+</div>

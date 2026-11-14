@@ -1,0 +1,50 @@
+// Small, global utility classes shared across features. Component-specific
+// styling lives with the component; only truly cross-cutting helpers land here.
+
+.u-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.u-row {
+  display: flex;
+  align-items: center;
+}
+
+.u-gap-1 {
+  gap: var(--i3d-space-1);
+}
+.u-gap-2 {
+  gap: var(--i3d-space-2);
+}
+.u-gap-3 {
+  gap: var(--i3d-space-3);
+}
+.u-gap-4 {
+  gap: var(--i3d-space-4);
+}
+
+.u-mono {
+  font-family: var(--i3d-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.u-subtle {
+  color: var(--i3d-text-subtle);
+}
+
+.u-truncate {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.u-spacer {
+  flex: 1 1 auto;
+}
+
+.u-scroll-y {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}

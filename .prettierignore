@@ -1,0 +1,10 @@
+# Generated
+dist
+coverage
+.angular
+node_modules
+package-lock.json
+public/favicon.ico
+
+# Docs that are hand-formatted
+CHANGELOG.md

@@ -1,0 +1,49 @@
+<a class="app-skip" href="#main">Skip to content</a>
+
+<header class="app-header">
+  <a class="app-brand" routerLink="/studio" aria-label="Image to 3D Studio — home">
+    <img src="logo.svg" alt="" width="30" height="30" />
+    <span class="app-brand__name">Image<span class="app-brand__arrow">→</span>3D</span>
+  </a>
+
+  <nav class="app-nav" aria-label="Main">
+    @for (link of links; track link.path) {
+      <a
+        [routerLink]="link.path"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <i3d-icon [name]="link.icon" [size]="16" />
+        <span>{{ link.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="app-header__actions">
+    <div
+      class="app-storage"
+      [attr.data-level]="usageLevel()"
+      [title]="usageHint()"
+      [attr.aria-label]="'Local storage used: ' + usageHint()"
+    >
+      <span class="app-storage__bar" [style.width.%]="usagePercent()"></span>
+      <span class="app-storage__label u-mono">{{ usageLabel() }}</span>
+    </div>
+
+    <button
+      type="button"
+      i3dButton="ghost"
+      [iconOnly]="true"
+      (click)="toggleTheme()"
+      [attr.aria-label]="theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+    >
+      <i3d-icon [name]="theme() === 'dark' ? 'sun' : 'moon'" [size]="17" />
+    </button>
+  </div>
+</header>
+
+<main id="main" class="app-main">
+  <router-outlet />
+</main>
+
+<i3d-toast-host />

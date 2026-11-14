@@ -1,0 +1,107 @@
+<div class="guide u-scroll-y">
+  <header class="guide__head">
+    <h1>How it works</h1>
+    <p>
+      Every model is built on your device. The image never leaves the browser, and nothing is
+      uploaded — projects live in <code>localStorage</code>.
+    </p>
+  </header>
+
+  <section class="guide__section">
+    <h2>The pipeline</h2>
+    <ol class="guide__steps">
+      @for (step of steps; track step.title) {
+        <li>
+          <span class="guide__step-index u-mono">{{ $index + 1 }}</span>
+          <div>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.body }}</p>
+          </div>
+        </li>
+      }
+    </ol>
+  </section>
+
+  <section class="guide__section">
+    <h2>Choosing a mode</h2>
+    <div class="guide__table" role="table">
+      <div class="guide__row guide__row--header" role="row">
+        <span role="columnheader">Mode</span>
+        <span role="columnheader">Geometry</span>
+        <span role="columnheader">Best for</span>
+      </div>
+      @for (mode of modes; track mode.label) {
+        <div class="guide__row" role="row">
+          <span role="cell"
+            ><strong>{{ mode.label }}</strong></span
+          >
+          <span role="cell">{{ mode.geometry }}</span>
+          <span role="cell">{{ mode.bestFor }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="guide__section">
+    <h2>Export formats</h2>
+    <div class="guide__table" role="table">
+      <div class="guide__row guide__row--header" role="row">
+        <span role="columnheader">Format</span>
+        <span role="columnheader">Carries</span>
+        <span role="columnheader">Use it for</span>
+      </div>
+      @for (format of formats; track format.label) {
+        <div class="guide__row" role="row">
+          <span role="cell"
+            ><strong>{{ format.label }}</strong></span
+          >
+          <span role="cell">{{ format.carries }}</span>
+          <span role="cell">{{ format.use }}</span>
+        </div>
+      }
+    </div>
+    <p class="guide__note">
+      STL and OBJ are unitless. If your slicer imports the model at the wrong size, scale by
+      <span class="u-mono">25.4</span> — the app exports in metres-style units, slicers often expect
+      millimetres.
+    </p>
+  </section>
+
+  <section class="guide__section">
+    <h2>Tips for better models</h2>
+    <ul class="guide__tips">
+      @for (tip of tips; track tip) {
+        <li>
+          <i3d-icon name="check" [size]="15" /> <span>{{ tip }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="guide__section">
+    <h2>Limits</h2>
+    <ul class="guide__tips">
+      <li>
+        <i3d-icon name="info" [size]="15" />
+        <span>
+          Local storage is roughly 5 MB per site. A stored project is mostly its image, so expect
+          10–25 projects depending on size.
+        </span>
+      </li>
+      <li>
+        <i3d-icon name="info" [size]="15" />
+        <span>
+          Geometry is never stored — a project is an image plus settings, and the model is rebuilt
+          deterministically when you open it.
+        </span>
+      </li>
+      <li>
+        <i3d-icon name="info" [size]="15" />
+        <span
+          >Clearing site data in your browser deletes every project. Export a GLB to keep a
+          copy.</span
+        >
+      </li>
+    </ul>
+  </section>
+</div>

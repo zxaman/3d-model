@@ -1,0 +1,138 @@
+// ---------------------------------------------------------------------------
+// Design tokens
+//
+// Single source of truth for colour, spacing, typography, motion and depth.
+// Semantic tokens (`--i3d-surface`, `--i3d-text`, …) are what components use;
+// the raw palette exists only to feed them. Theming is a matter of swapping the
+// semantic block under `[data-theme='light']` — no component styles change.
+// ---------------------------------------------------------------------------
+
+:root {
+  color-scheme: dark;
+
+  // -- Raw palette (dark) --------------------------------------------------
+  --i3d-slate-950: #07090f;
+  --i3d-slate-900: #0b0e15;
+  --i3d-slate-850: #11151f;
+  --i3d-slate-800: #161b28;
+  --i3d-slate-700: #1e2432;
+  --i3d-slate-600: #29313f;
+  --i3d-slate-500: #3a4457;
+  --i3d-slate-400: #6b7691;
+  --i3d-slate-300: #98a2b9;
+  --i3d-slate-200: #c3cadb;
+  --i3d-slate-100: #e6eaf4;
+  --i3d-indigo-500: #6d8cff;
+  --i3d-indigo-400: #8ba4ff;
+  --i3d-indigo-600: #4f6ee8;
+  --i3d-teal-400: #35d6c0;
+  --i3d-amber-400: #f5b544;
+  --i3d-rose-400: #ff6b81;
+
+  // -- Semantic ------------------------------------------------------------
+  --i3d-bg: var(--i3d-slate-950);
+  --i3d-bg-sunken: #05070c;
+  --i3d-surface: var(--i3d-slate-850);
+  --i3d-surface-raised: var(--i3d-slate-800);
+  --i3d-surface-hover: var(--i3d-slate-700);
+  --i3d-surface-active: var(--i3d-slate-600);
+  --i3d-surface-glass: rgba(17, 21, 31, 0.86);
+  --i3d-border: var(--i3d-slate-700);
+  --i3d-border-strong: var(--i3d-slate-600);
+  --i3d-border-subtle: rgba(58, 68, 87, 0.5);
+
+  --i3d-text: var(--i3d-slate-100);
+  --i3d-text-muted: var(--i3d-slate-300);
+  --i3d-text-subtle: var(--i3d-slate-400);
+
+  --i3d-accent: var(--i3d-indigo-500);
+  --i3d-accent-hover: var(--i3d-indigo-400);
+  --i3d-accent-press: var(--i3d-indigo-600);
+  --i3d-accent-contrast: #05070c;
+  --i3d-accent-soft: rgba(109, 140, 255, 0.16);
+  --i3d-accent-border: rgba(109, 140, 255, 0.4);
+
+  --i3d-success: var(--i3d-teal-400);
+  --i3d-warning: var(--i3d-amber-400);
+  --i3d-danger: var(--i3d-rose-400);
+  --i3d-danger-soft: rgba(255, 107, 129, 0.14);
+
+  // -- Typography ----------------------------------------------------------
+  --i3d-font-sans:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --i3d-font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo, monospace;
+  --i3d-text-2xs: 0.6875rem;
+  --i3d-text-xs: 0.75rem;
+  --i3d-text-sm: 0.8125rem;
+  --i3d-text-md: 0.9375rem;
+  --i3d-text-lg: 1.0625rem;
+  --i3d-text-xl: 1.25rem;
+  --i3d-text-2xl: 1.625rem;
+
+  // -- Spacing -------------------------------------------------------------
+  --i3d-space-1: 0.25rem;
+  --i3d-space-2: 0.5rem;
+  --i3d-space-3: 0.75rem;
+  --i3d-space-4: 1rem;
+  --i3d-space-5: 1.25rem;
+  --i3d-space-6: 1.5rem;
+  --i3d-space-8: 2rem;
+  --i3d-space-10: 2.5rem;
+
+  // -- Radii, elevation, motion -------------------------------------------
+  --i3d-radius-sm: 0.375rem;
+  --i3d-radius-md: 0.625rem;
+  --i3d-radius-lg: 0.875rem;
+  --i3d-radius-xl: 1.25rem;
+  --i3d-radius-full: 999px;
+
+  --i3d-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --i3d-shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
+  --i3d-shadow-lg: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
+
+  --i3d-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --i3d-duration-fast: 120ms;
+  --i3d-duration: 200ms;
+  --i3d-duration-slow: 420ms;
+
+  // -- Layout --------------------------------------------------------------
+  --i3d-header-height: 3.5rem;
+  --i3d-panel-width: 21.5rem;
+
+  --i3d-focus-ring: 0 0 0 2px var(--i3d-bg), 0 0 0 4px var(--i3d-accent);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  --i3d-bg: #f4f6fb;
+  --i3d-bg-sunken: #e9edf6;
+  --i3d-surface: #ffffff;
+  --i3d-surface-raised: #ffffff;
+  --i3d-surface-hover: #f0f3fa;
+  --i3d-surface-active: #e4e9f4;
+  --i3d-surface-glass: rgba(255, 255, 255, 0.88);
+  --i3d-border: #dfe4ef;
+  --i3d-border-strong: #c8d0e0;
+  --i3d-border-subtle: rgba(200, 208, 224, 0.6);
+
+  --i3d-text: #10141c;
+  --i3d-text-muted: #475066;
+  --i3d-text-subtle: #6d7689;
+
+  --i3d-accent: #3f5fe0;
+  --i3d-accent-hover: #3350c8;
+  --i3d-accent-press: #2a44ad;
+  --i3d-accent-contrast: #ffffff;
+  --i3d-accent-soft: rgba(63, 95, 224, 0.1);
+  --i3d-accent-border: rgba(63, 95, 224, 0.32);
+
+  --i3d-success: #0f9d84;
+  --i3d-warning: #b8791b;
+  --i3d-danger: #d43a52;
+  --i3d-danger-soft: rgba(212, 58, 82, 0.1);
+
+  --i3d-shadow-sm: 0 1px 2px rgba(16, 20, 28, 0.06);
+  --i3d-shadow-md: 0 8px 24px -10px rgba(16, 20, 28, 0.18);
+  --i3d-shadow-lg: 0 24px 60px -28px rgba(16, 20, 28, 0.28);
+}

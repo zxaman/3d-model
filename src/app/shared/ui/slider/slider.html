@@ -1,0 +1,23 @@
+<div class="i3d-slider">
+  <div class="i3d-slider__head">
+    <label [for]="inputId">{{ label() }}</label>
+    <output [for]="inputId">{{ displayValue() }}</output>
+  </div>
+
+  <input
+    type="range"
+    [id]="inputId"
+    [min]="min()"
+    [max]="max()"
+    [step]="step()"
+    [value]="value()"
+    [disabled]="disabled()"
+    [attr.aria-describedby]="hint() ? hintId : null"
+    (input)="onInput($event)"
+    (change)="onInput($event)"
+  />
+
+  @if (hint()) {
+    <p class="i3d-slider__hint" [id]="hintId">{{ hint() }}</p>
+  }
+</div>

@@ -1,0 +1,18 @@
+<label class="i3d-toggle" [class.is-disabled]="disabled()">
+  <input
+    type="checkbox"
+    [id]="inputId"
+    [checked]="checked()"
+    [disabled]="disabled()"
+    (change)="onChange($event)"
+  />
+  <span class="i3d-toggle__track" aria-hidden="true">
+    <span class="i3d-toggle__thumb"></span>
+  </span>
+  <span class="i3d-toggle__text">
+    <span class="i3d-toggle__label">{{ label() }}</span>
+    @if (hint()) {
+      <span class="i3d-toggle__hint">{{ hint() }}</span>
+    }
+  </span>
+</label>

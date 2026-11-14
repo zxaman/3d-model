@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Image to 3D Studio">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f6ee8" />
+      <stop offset="1" stop-color="#35d6c0" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#bg)" />
+  <g fill="none" stroke="#05070c" stroke-width="1.6" stroke-linejoin="round" opacity="0.9">
+    <path d="M16 5.5 26 11v10l-10 5.5L6 21V11z" />
+    <path d="M16 5.5v10L6 11M16 15.5l10-4.5M16 15.5V26" />
+  </g>
+  <circle cx="16" cy="11" r="1.9" fill="#05070c" />
+</svg>

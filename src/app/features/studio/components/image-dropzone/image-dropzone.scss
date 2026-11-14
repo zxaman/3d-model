@@ -1,0 +1,82 @@
+@use 'mixins' as m;
+
+:host {
+  display: block;
+
+  &.is-dragging .dropzone {
+    border-color: var(--i3d-accent);
+    background: var(--i3d-accent-soft);
+  }
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--i3d-space-2);
+  padding: var(--i3d-space-6) var(--i3d-space-4);
+  text-align: center;
+  border: 1.5px dashed var(--i3d-border-strong);
+  border-radius: var(--i3d-radius-lg);
+  background: var(--i3d-bg-sunken);
+  transition:
+    border-color var(--i3d-duration) var(--i3d-ease),
+    background var(--i3d-duration) var(--i3d-ease);
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: var(--i3d-space-1);
+    border-radius: var(--i3d-radius-full);
+    color: var(--i3d-accent);
+    background: var(--i3d-accent-soft);
+    border: 1px solid var(--i3d-accent-border);
+  }
+
+  &__title {
+    font-size: var(--i3d-text-sm);
+    font-weight: 550;
+    color: var(--i3d-text);
+  }
+
+  &__hint {
+    margin-bottom: var(--i3d-space-2);
+    font-size: var(--i3d-text-xs);
+    color: var(--i3d-text-subtle);
+  }
+
+  &--compact {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--i3d-space-3);
+    padding: var(--i3d-space-2);
+    text-align: left;
+  }
+
+  &__preview {
+    flex: none;
+    width: 3rem;
+    height: 3rem;
+    object-fit: cover;
+    border-radius: var(--i3d-radius-md);
+    border: 1px solid var(--i3d-border);
+    background: var(--i3d-bg);
+  }
+
+  &__meta {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: var(--i3d-text-sm);
+    color: var(--i3d-text);
+  }
+
+  &__dims {
+    font-size: var(--i3d-text-2xs);
+    color: var(--i3d-text-subtle);
+  }
+}

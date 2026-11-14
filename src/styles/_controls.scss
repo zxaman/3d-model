@@ -1,0 +1,156 @@
+// Styles for directives and primitives that are applied to elements owned by
+// other components (`i3dButton`, `i3d-icon`). They cannot be component-scoped,
+// so they live here — the single global exception to "styles live with the
+// component that owns the markup".
+
+@use 'mixins' as m;
+
+.i3d-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: currentColor;
+}
+
+.i3d-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--i3d-space-2);
+  font-size: var(--i3d-text-sm);
+  font-weight: 550;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-radius: var(--i3d-radius-md);
+  transition:
+    background var(--i3d-duration-fast) var(--i3d-ease),
+    border-color var(--i3d-duration-fast) var(--i3d-ease),
+    color var(--i3d-duration-fast) var(--i3d-ease),
+    transform var(--i3d-duration-fast) var(--i3d-ease);
+
+  @include m.focus-ring;
+
+  &:active:not(:disabled) {
+    transform: translateY(0.5px);
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  // -- Sizes ---------------------------------------------------------------
+  &[data-size='sm'] {
+    height: 1.75rem;
+    padding: 0 var(--i3d-space-2);
+    font-size: var(--i3d-text-xs);
+    gap: var(--i3d-space-1);
+  }
+
+  &[data-size='md'] {
+    height: 2.125rem;
+    padding: 0 var(--i3d-space-3);
+  }
+
+  &[data-size='lg'] {
+    height: 2.625rem;
+    padding: 0 var(--i3d-space-4);
+    font-size: var(--i3d-text-md);
+  }
+
+  &.is-icon-only {
+    padding: 0;
+    aspect-ratio: 1;
+    width: 2.125rem;
+
+    &[data-size='sm'] {
+      width: 1.75rem;
+    }
+  }
+
+  &.is-busy {
+    pointer-events: none;
+
+    > * {
+      opacity: 0.5;
+    }
+  }
+
+  &.i3d-button--block {
+    width: 100%;
+  }
+
+  // -- Variants ------------------------------------------------------------
+  &[data-variant='primary'] {
+    color: var(--i3d-accent-contrast);
+    background: var(--i3d-accent);
+    border-color: var(--i3d-accent);
+
+    @include m.hover {
+      background: var(--i3d-accent-hover);
+      border-color: var(--i3d-accent-hover);
+    }
+
+    &:active:not(:disabled) {
+      background: var(--i3d-accent-press);
+    }
+  }
+
+  &[data-variant='secondary'] {
+    color: var(--i3d-text);
+    background: var(--i3d-surface-raised);
+    border-color: var(--i3d-border);
+
+    @include m.hover {
+      background: var(--i3d-surface-hover);
+      border-color: var(--i3d-border-strong);
+    }
+  }
+
+  &[data-variant='ghost'] {
+    color: var(--i3d-text-muted);
+    background: transparent;
+
+    @include m.hover {
+      color: var(--i3d-text);
+      background: var(--i3d-surface-hover);
+    }
+  }
+
+  &[data-variant='danger'] {
+    color: var(--i3d-danger);
+    background: var(--i3d-danger-soft);
+    border-color: transparent;
+
+    @include m.hover {
+      background: color-mix(in srgb, var(--i3d-danger) 22%, transparent);
+    }
+  }
+}
+
+// -- Spinner ----------------------------------------------------------------
+
+.i3d-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--i3d-border-strong);
+  border-top-color: var(--i3d-accent);
+  border-radius: 50%;
+  animation: i3d-spin 0.7s linear infinite;
+
+  &[data-size='sm'] {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-width: 1.5px;
+  }
+}
+
+@keyframes i3d-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

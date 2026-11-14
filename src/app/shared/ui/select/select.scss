@@ -1,0 +1,56 @@
+@use 'mixins' as m;
+
+.i3d-select {
+  display: flex;
+  flex-direction: column;
+  gap: var(--i3d-space-2);
+
+  label {
+    font-size: var(--i3d-text-sm);
+    color: var(--i3d-text-muted);
+  }
+
+  &__control {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    select {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      padding: 0.4375rem var(--i3d-space-8) 0.4375rem var(--i3d-space-3);
+      font-size: var(--i3d-text-sm);
+      color: var(--i3d-text);
+      background: var(--i3d-bg-sunken);
+      border: 1px solid var(--i3d-border);
+      border-radius: var(--i3d-radius-md);
+      cursor: pointer;
+      transition: border-color var(--i3d-duration) var(--i3d-ease);
+
+      @include m.hover {
+        border-color: var(--i3d-border-strong);
+      }
+
+      @include m.focus-ring;
+
+      &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+    }
+
+    i3d-icon {
+      position: absolute;
+      right: var(--i3d-space-2);
+      color: var(--i3d-text-subtle);
+      rotate: 90deg;
+      pointer-events: none;
+    }
+  }
+
+  &__hint {
+    font-size: var(--i3d-text-xs);
+    color: var(--i3d-text-subtle);
+  }
+}

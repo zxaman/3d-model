@@ -1,0 +1,57 @@
+<div class="export-bar">
+  <div class="export-bar__stats">
+    <span class="export-bar__badge">{{ modeLabel() }}</span>
+
+    @if (stats(); as meshStats) {
+      <span class="export-bar__stat u-mono">{{ meshStats.triangles | number }} tris</span>
+      <span class="export-bar__stat u-mono">{{ meshStats.vertices | number }} verts</span>
+    }
+
+    @if (generationMs() !== null) {
+      <span class="export-bar__stat u-mono">{{ generationMs() | number: '1.0-0' }} ms</span>
+    }
+
+    @if (isDirty()) {
+      <span class="export-bar__stat export-bar__stat--dirty">Unsaved</span>
+    }
+  </div>
+
+  <div class="export-bar__actions">
+    <button
+      type="button"
+      i3dButton="secondary"
+      [size]="'sm'"
+      (click)="snapshot.emit()"
+      [disabled]="!canExport()"
+      [attr.aria-label]="'Save a PNG preview of the viewport'"
+    >
+      <i3d-icon name="camera" [size]="15" />
+      PNG
+    </button>
+
+    @for (format of formats; track format.id) {
+      <button
+        type="button"
+        i3dButton="secondary"
+        [size]="'sm'"
+        [disabled]="!canExport() || !supports(format)"
+        [title]="supports(format) ? format.hint : format.label + ' does not apply to this mode'"
+        (click)="exportFormat.emit(format.id)"
+      >
+        {{ format.label }}
+      </button>
+    }
+
+    <button
+      type="button"
+      i3dButton="primary"
+      [size]="'sm'"
+      [disabled]="!canSave()"
+      [busy]="busy()"
+      (click)="save.emit()"
+    >
+      <i3d-icon name="save" [size]="15" />
+      Save project
+    </button>
+  </div>
+</div>

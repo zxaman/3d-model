@@ -1,0 +1,75 @@
+<article class="project-card">
+  <a
+    class="project-card__thumb"
+    [routerLink]="['/studio']"
+    [queryParams]="{ id: project().id }"
+    [attr.aria-label]="'Open ' + project().name + ' in the studio'"
+  >
+    <img [src]="project().thumbnail" [alt]="''" loading="lazy" decoding="async" />
+    <span class="project-card__badge">{{ modeLabel() }}</span>
+  </a>
+
+  <div class="project-card__body">
+    @if (renaming()) {
+      <input
+        #nameInput
+        type="text"
+        class="project-card__rename"
+        [value]="project().name"
+        maxlength="60"
+        (blur)="commitRename($event)"
+        (keydown.enter)="commitRename($event)"
+        (keydown.escape)="renaming.set(false)"
+      />
+    } @else {
+      <h3 class="project-card__name u-truncate" [title]="project().name">{{ project().name }}</h3>
+    }
+
+    <p class="project-card__meta u-mono">{{ triangleLabel() }} tris · {{ sizeLabel() }}</p>
+    <p class="project-card__time">{{ updatedLabel() }}</p>
+  </div>
+
+  <footer class="project-card__actions">
+    <a
+      i3dButton="secondary"
+      [size]="'sm'"
+      [routerLink]="['/studio']"
+      [queryParams]="{ id: project().id }"
+    >
+      Open
+    </a>
+
+    <button
+      type="button"
+      i3dButton="ghost"
+      [size]="'sm'"
+      [iconOnly]="true"
+      (click)="startRename()"
+      [attr.aria-label]="'Rename ' + project().name"
+    >
+      <i3d-icon name="sliders" [size]="15" />
+    </button>
+
+    <button
+      type="button"
+      i3dButton="ghost"
+      [size]="'sm'"
+      [iconOnly]="true"
+      (click)="duplicate.emit()"
+      [attr.aria-label]="'Duplicate ' + project().name"
+    >
+      <i3d-icon name="copy" [size]="15" />
+    </button>
+
+    <button
+      type="button"
+      i3dButton="danger"
+      [size]="'sm'"
+      [iconOnly]="true"
+      (click)="remove.emit()"
+      [attr.aria-label]="'Delete ' + project().name"
+    >
+      <i3d-icon name="trash" [size]="15" />
+    </button>
+  </footer>
+</article>
