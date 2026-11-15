@@ -48,6 +48,20 @@ describe('StudioPage', () => {
     }
   });
 
+  it('always shows a Generate action', async () => {
+    // Regression: the only trigger used to live inside a collapsed section and
+    // vanish whenever live regeneration was on, which is the default.
+    const fixture = TestBed.createComponent(StudioPage);
+    await fixture.whenStable();
+
+    const generate = (fixture.nativeElement as HTMLElement).querySelector(
+      '.settings__generate button',
+    ) as HTMLButtonElement;
+
+    expect(generate).toBeTruthy();
+    expect(generate.disabled).toBe(true); // no image loaded yet
+  });
+
   it('names the project from the picked file', async () => {
     const fixture = TestBed.createComponent(StudioPage);
     await fixture.whenStable();

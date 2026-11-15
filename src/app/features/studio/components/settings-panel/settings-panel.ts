@@ -44,6 +44,15 @@ export class SettingsPanel {
   readonly estimate = input.required<ComplexityEstimate>();
   readonly autoGenerate = input(false);
 
+  /** An image is loaded — without one there is nothing to generate from. */
+  readonly hasSource = input(false);
+  /** A model has already been built, so the action becomes "regenerate". */
+  readonly hasModel = input(false);
+  /** Settings moved on since the model on screen was built. */
+  readonly stale = input(false);
+  /** A run is in flight. */
+  readonly busy = input(false);
+
   readonly settingsChange = output<Partial<GenerationSettings>>();
   readonly presentationChange = output<Partial<PresentationSettings>>();
   readonly modeChange = output<GenerationMode>();
@@ -79,6 +88,41 @@ export class SettingsPanel {
   ];
 
   protected readonly integerFormat = (value: number): string => String(Math.round(value));
+
+  /**
+   * The one action a first-time user is looking for.
+   *
+   * It stays mounted whether or not live regeneration is on: with auto-generate
+   * enabled the model rebuilds by itself, but a control that only exists in the
+   * opposite mode is undiscoverable — and "where is the button?" is exactly the
+   * question someone asks when the app silently does the work for them.
+   */
+  protected readonly generateLabel = computed(() => {
+    if (this.busy()) {
+      return this.hasModel() ? 'Rebuilding…' : 'Generating model…';
+    }
+    return this.hasModel() ? 'Regenerate model' : 'Generate model';
+  });
+
+  protected readonly generateIcon = computed(() => (this.hasModel() ? 'refresh' : 'sparkles'));
+
+  protected readonly generateDisabled = computed(() => !this.hasSource() || this.busy());
+
+  protected readonly generateHint = computed(() => {
+    if (!this.hasSource()) {
+      return 'Add an image first — drop one on the panel above.';
+    }
+    if (this.busy()) {
+      return 'Building geometry in a web worker…';
+    }
+    if (this.autoGenerate()) {
+      return 'Live regeneration is on — the model rebuilds as you move the sliders.';
+    }
+    if (this.stale()) {
+      return 'Settings changed. Generate again to apply them.';
+    }
+    return 'Up to date. Generate again to rebuild from scratch.';
+  });
 
   protected readonly modeSummary = computed(() => {
     const descriptor = MODE_CATALOG[this.settings().mode];

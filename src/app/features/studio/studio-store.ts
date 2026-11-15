@@ -56,6 +56,8 @@ export class StudioStore implements OnDestroy {
   private readonly projectIdState = signal<string | null>(null);
   private readonly nameState = signal('');
   private readonly dirtyState = signal(false);
+  /** Settings changed since the model currently on screen was built. */
+  private readonly staleState = signal(false);
 
   private run$: Subscription | null = null;
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -71,6 +73,7 @@ export class StudioStore implements OnDestroy {
   readonly projectId = this.projectIdState.asReadonly();
   readonly name = this.nameState.asReadonly();
   readonly isDirty = this.dirtyState.asReadonly();
+  readonly stale = this.staleState.asReadonly();
 
   readonly presentation = this.preferences.presentation;
   readonly autoGenerate = this.preferences.autoGenerate;
@@ -113,6 +116,7 @@ export class StudioStore implements OnDestroy {
       this.dirtyState.set(true);
       this.nameState.set(stripExtension(file.name));
 
+      this.staleState.set(false);
       await this.run();
     } catch (error) {
       this.#fail(error, 'That file could not be loaded.');
@@ -142,6 +146,7 @@ export class StudioStore implements OnDestroy {
       this.dirtyState.set(false);
       this.preferences.patchPresentation(record.presentation);
 
+      this.staleState.set(false);
       await this.run();
     } catch (error) {
       this.#fail(error, 'That project could not be reopened.');
@@ -205,6 +210,7 @@ export class StudioStore implements OnDestroy {
     this.projectIdState.set(null);
     this.nameState.set('');
     this.dirtyState.set(false);
+    this.staleState.set(false);
     this.progressState.set(0);
     this.statusState.set('empty');
   }
@@ -333,6 +339,7 @@ export class StudioStore implements OnDestroy {
         this.resultState.set({ payload: event.payload, durationMs: event.durationMs });
         this.progressState.set(1);
         this.statusState.set('ready');
+        this.staleState.set(false);
         this.dirtyState.set(true);
       },
       error: (error: unknown) => this.#fail(error, 'The model could not be generated.'),
@@ -341,6 +348,7 @@ export class StudioStore implements OnDestroy {
 
   #afterSettingsChange(): void {
     this.dirtyState.set(true);
+    this.staleState.set(true);
 
     if (this.sourceState() === null) {
       return;

@@ -7,6 +7,61 @@
     </p>
   </header>
 
+  <section class="guide__section" id="how-to-use">
+    <h2>How to use it — guided walkthrough</h2>
+    <p class="guide__lead">
+      Press play and the studio walks you through itself, one step at a time. Prefer to read? Every
+      step is written out in full underneath, and the transcript lists the whole script.
+    </p>
+    <i3d-tutorial />
+  </section>
+
+  <section class="guide__section">
+    <h2>Walkthrough in detail</h2>
+    <ol class="guide__steps">
+      @for (step of walkthrough; track step.title) {
+        <li>
+          <span class="guide__step-index u-mono">{{ $index + 1 }}</span>
+          <div>
+            <h3>
+              {{ step.title }}
+              <span class="guide__step-caption">{{ step.caption }}</span>
+            </h3>
+            <p>{{ step.body }}</p>
+          </div>
+        </li>
+      }
+    </ol>
+  </section>
+
+  <section class="guide__section">
+    <h2>Keyboard and mouse shortcuts</h2>
+    <div class="guide__table" role="table">
+      @for (shortcut of shortcuts; track shortcut.keys) {
+        <div class="guide__row guide__row--pair" role="row">
+          <span role="cell"
+            ><kbd>{{ shortcut.keys }}</kbd></span
+          >
+          <span role="cell">{{ shortcut.action }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="guide__section">
+    <h2>Troubleshooting</h2>
+    <div class="guide__table" role="table">
+      @for (entry of troubleshooting; track entry.problem) {
+        <div class="guide__row guide__row--pair" role="row">
+          <span role="cell"
+            ><strong>{{ entry.problem }}</strong></span
+          >
+          <span role="cell">{{ entry.fix }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
   <section class="guide__section">
     <h2>The pipeline</h2>
     <ol class="guide__steps">

@@ -29,8 +29,10 @@ npm install
 npm start          # http://localhost:4200
 ```
 
-Then drop an image on the studio panel (or paste one from the clipboard), pick a
-mode, and export.
+Then drop an image on the studio panel (or paste one from the clipboard), press
+**Generate model**, and export. If you would rather be shown, open **How it
+works** — the guided walkthrough plays through the whole flow, or you can step
+through it with the arrow keys.
 
 ### Scripts
 
@@ -48,6 +50,32 @@ mode, and export.
 Requires Node `^22.22.3`, `^24.15` or `>=26` (Angular 22's engine range).
 
 ---
+
+## Learning the app
+
+The **How it works** page (`/guide#how-to-use`) leads with a seven-step walkthrough:
+
+1. Add your image — drag & drop, browse, or paste
+2. Choose a conversion mode
+3. Shape the depth with the geometry sliders
+4. Generate the model
+5. Inspect it from every angle
+6. Export the mesh
+7. Save it and come back to it later
+
+It is video-shaped rather than a video: a playhead, chapter markers you can jump
+from, `←`/`→` to step, `Space` to play or pause, `Home` to restart, and a
+transcript of the whole script. The "screen" is a miniature of the studio drawn
+in markup rather than recorded, so it costs no bandwidth, works offline like the
+rest of the app, and cannot drift out of sync with the real UI. Animation is
+disabled under `prefers-reduced-motion`.
+
+Below the player the same seven steps are written out in full, alongside
+shortcuts and a troubleshooting table.
+
+The **Generate model** button lives at the top of the Conversion panel and stays
+visible whether or not live regeneration is on — running it by hand is always
+available, even when the app would otherwise do it for you.
 
 ## How the conversion works
 

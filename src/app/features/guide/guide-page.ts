@@ -1,22 +1,42 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { EXPORT_FORMATS } from '@core/services/export.service';
 import { Icon } from '@shared/ui';
+import { Tutorial } from './tutorial/tutorial';
+import { TUTORIAL_STEPS } from './tutorial/tutorial-steps';
 
 interface PipelineStep {
   readonly title: string;
   readonly body: string;
 }
 
+interface WalkthroughStep {
+  readonly title: string;
+  readonly caption: string;
+  readonly body: string;
+}
+
+interface Shortcut {
+  readonly keys: string;
+  readonly action: string;
+}
+
 /** Static, explanatory route. Kept as data + template so it stays easy to edit. */
 @Component({
   selector: 'i3d-guide-page',
-  imports: [Icon],
+  imports: [Icon, Tutorial],
   templateUrl: './guide-page.html',
   styleUrl: './guide-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'i3d-guide-page' },
 })
 export class GuidePage {
+  /** Drives the "what to click" checklist under the walkthrough player. */
+  protected readonly walkthrough: readonly WalkthroughStep[] = TUTORIAL_STEPS.map((step) => ({
+    title: step.title,
+    caption: step.caption,
+    body: step.body,
+  }));
+
   protected readonly steps: readonly PipelineStep[] = [
     {
       title: 'Decode and downscale',
@@ -68,6 +88,42 @@ export class GuidePage {
     carries: CARRIES[format.id],
     use: USES[format.id],
   }));
+
+  protected readonly shortcuts: readonly Shortcut[] = [
+    { keys: 'Ctrl / Cmd + V', action: 'Paste an image straight into the studio' },
+    { keys: 'Drag', action: 'Orbit the model' },
+    { keys: 'Scroll', action: 'Zoom in and out' },
+    { keys: 'Right-drag', action: 'Pan the camera' },
+    { keys: '← →', action: 'Step through the walkthrough above' },
+    { keys: 'Space', action: 'Play or pause the walkthrough' },
+  ];
+
+  protected readonly troubleshooting = [
+    {
+      problem: 'The model looks flat',
+      fix: 'The image has little contrast. Raise Contrast, or switch "Height from" to Transparency for artwork on a transparent background.',
+    },
+    {
+      problem: 'The surface is noisy',
+      fix: 'Raise Smoothing to remove sensor and JPEG noise, then raise Detail recovery to bring the real edges back.',
+    },
+    {
+      problem: 'Nothing appears after dropping an image',
+      fix: 'Check for an error toast. Very large files are capped at 40 MB, and the browser must support web workers.',
+    },
+    {
+      problem: 'The viewport is blank',
+      fix: 'WebGL did not start. Generation and export still work — try a different browser or enable hardware acceleration.',
+    },
+    {
+      problem: 'The print is not watertight',
+      fix: 'Turn on the solid base before exporting an STL, so the mesh is closed with side walls and a back face.',
+    },
+    {
+      problem: 'Saving fails with a storage error',
+      fix: 'Delete a project from the gallery. Roughly 5 MB of local storage holds about 10–25 projects.',
+    },
+  ];
 
   protected readonly tips = [
     'Start from a high-contrast image — flat lighting produces a flat model.',

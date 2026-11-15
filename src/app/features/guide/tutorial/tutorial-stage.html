@@ -1,0 +1,79 @@
+<!--
+  The "screen". A miniature of the studio, drawn in markup rather than
+  recorded, so it stays in sync with the app and costs no bandwidth.
+-->
+<div
+  class="tut__stage"
+  [attr.data-focus]="step().region"
+  [attr.data-action]="step().action"
+  role="img"
+  [attr.aria-label]="step().title + ' — ' + step().caption"
+>
+  <div class="tut__chrome" aria-hidden="true">
+    <span class="tut__dot"></span>
+    <span class="tut__dot"></span>
+    <span class="tut__dot"></span>
+    <span class="tut__url u-mono">/studio</span>
+  </div>
+
+  <div class="tut__body">
+    <div class="tut__panel">
+      <div class="tut__region" data-region="dropzone">
+        <i3d-icon name="upload" [size]="15" />
+        <span class="tut__line tut__line--strong">Drop an image</span>
+        <span class="tut__line tut__line--faint">or click to browse</span>
+      </div>
+
+      <div class="tut__region" data-region="mode">
+        <span class="tut__label">Generation mode</span>
+        <div class="tut__segments">
+          <span class="is-on">Relief</span>
+          <span>Extrude</span>
+          <span>Voxel</span>
+          <span>Points</span>
+        </div>
+      </div>
+
+      <div class="tut__region" data-region="sliders">
+        <span class="tut__label">Geometry</span>
+        <div class="tut__track"><span class="tut__thumb"></span></div>
+        <div class="tut__track"><span class="tut__thumb"></span></div>
+        <div class="tut__track"><span class="tut__thumb"></span></div>
+      </div>
+
+      <div class="tut__region tut__region--cta" data-region="generate">
+        <i3d-icon name="sparkles" [size]="13" />
+        <span>Generate model</span>
+      </div>
+    </div>
+
+    <div class="tut__region tut__view" data-region="viewport">
+      <div class="tut__mesh" [class.is-on]="showMesh()" aria-hidden="true">
+        <span></span><span></span><span></span><span></span> <span></span><span></span><span></span
+        ><span></span>
+      </div>
+      @if (!showMesh()) {
+        <span class="tut__placeholder">No model yet</span>
+      }
+    </div>
+  </div>
+
+  <div class="tut__region tut__bar" data-region="export">
+    <span class="tut__chip">GLB</span>
+    <span class="tut__chip">OBJ</span>
+    <span class="tut__chip">STL</span>
+    <span class="tut__chip">PLY</span>
+    <span class="tut__bar-spacer"></span>
+    <span class="tut__region tut__save" data-region="save">Save</span>
+  </div>
+
+  <!-- Decorative: the pointer that acts out each step. -->
+  <span class="tut__cursor" [style.left.%]="step().cursor.x" [style.top.%]="step().cursor.y">
+    <span class="tut__ripple"></span>
+  </span>
+
+  <span class="tut__file" aria-hidden="true">
+    <i3d-icon name="image" [size]="14" />
+    photo.png
+  </span>
+</div>

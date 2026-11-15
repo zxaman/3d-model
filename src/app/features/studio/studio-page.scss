@@ -44,6 +44,27 @@
   }
 }
 
+.studio__guide {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--i3d-space-2);
+  margin-top: var(--i3d-space-3);
+  padding: 0.3125rem var(--i3d-space-3);
+  font-size: var(--i3d-text-xs);
+  color: var(--i3d-accent);
+  background: var(--i3d-accent-soft);
+  border: 1px solid var(--i3d-accent-border);
+  border-radius: var(--i3d-radius-full);
+  text-decoration: none;
+  transition: background var(--i3d-duration) var(--i3d-ease);
+
+  @include m.focus-ring;
+
+  &:hover {
+    background: color-mix(in srgb, var(--i3d-accent) 22%, transparent);
+  }
+}
+
 .studio__field {
   display: flex;
   flex-direction: column;
