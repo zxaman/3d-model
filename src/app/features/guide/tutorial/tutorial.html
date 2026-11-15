@@ -1,0 +1,114 @@
+<div class="tut">
+  <i3d-tutorial-stage [step]="step()" [showMesh]="showMesh()" />
+
+  <!-- Transport ---------------------------------------------------------- -->
+  <div class="tut__scrub" role="group" aria-label="Walkthrough progress">
+    @for (entry of steps; track entry.id) {
+      <button
+        type="button"
+        class="tut__chapter"
+        [class.is-done]="$index < index()"
+        [class.is-current]="$index === index()"
+        [style.flex-grow]="entry.weight"
+        [attr.aria-label]="'Step ' + ($index + 1) + ': ' + entry.title"
+        [attr.aria-current]="$index === index() ? 'step' : null"
+        (click)="goTo($index)"
+      >
+        <span class="tut__chapter-fill" [style.width.%]="$index === index() ? percent() : 0"></span>
+      </button>
+    }
+  </div>
+
+  <div class="tut__transport">
+    <button
+      type="button"
+      i3dButton="ghost"
+      size="sm"
+      [iconOnly]="true"
+      aria-label="Previous step"
+      (click)="previous()"
+    >
+      <i3d-icon name="chevron-right" [size]="17" class="is-flipped" />
+    </button>
+
+    <button
+      type="button"
+      i3dButton="primary"
+      size="sm"
+      [iconOnly]="true"
+      [attr.aria-label]="playing() ? 'Pause walkthrough' : 'Play walkthrough'"
+      [attr.aria-pressed]="playing()"
+      (click)="toggle()"
+    >
+      @if (playing()) {
+        <span class="tut__pause" aria-hidden="true"></span>
+      } @else {
+        <span class="tut__play" aria-hidden="true"></span>
+      }
+    </button>
+
+    <button
+      type="button"
+      i3dButton="ghost"
+      size="sm"
+      [iconOnly]="true"
+      aria-label="Next step"
+      (click)="next()"
+    >
+      <i3d-icon name="chevron-right" [size]="17" />
+    </button>
+
+    <button
+      type="button"
+      i3dButton="ghost"
+      size="sm"
+      [iconOnly]="true"
+      aria-label="Restart walkthrough"
+      (click)="restart()"
+    >
+      <i3d-icon name="refresh" [size]="16" />
+    </button>
+
+    <p class="tut__counter u-mono">
+      Step {{ stepNumber() }} of {{ total }} · {{ timecode() }} / {{ totalTimecode() }}
+    </p>
+
+    <button
+      type="button"
+      class="tut__transcript-toggle"
+      [attr.aria-expanded]="transcriptExpanded()"
+      aria-controls="tutorial-transcript"
+      (click)="toggleTranscript()"
+    >
+      Transcript
+      <i3d-icon name="chevron-right" [size]="14" [class.is-open]="transcriptExpanded()" />
+    </button>
+  </div>
+
+  <!-- Caption ------------------------------------------------------------ -->
+  <div class="tut__caption" aria-live="polite">
+    <p class="tut__eyebrow u-mono">{{ step().caption }}</p>
+    <h3 class="tut__title">{{ step().title }}</h3>
+    <p class="tut__body">{{ step().body }}</p>
+    <p class="tut__tip">
+      <i3d-icon name="info" [size]="15" />
+      <span>{{ step().tip }}</span>
+    </p>
+  </div>
+
+  @if (transcriptExpanded()) {
+    <ol id="tutorial-transcript" class="tut__transcript">
+      @for (entry of steps; track entry.id) {
+        <li [class.is-current]="$index === index()">
+          <button type="button" (click)="goTo($index)">
+            <span class="tut__transcript-index u-mono">{{ $index + 1 }}</span>
+            <span class="tut__transcript-copy">
+              <strong>{{ entry.title }}</strong>
+              <span>{{ entry.body }}</span>
+            </span>
+          </button>
+        </li>
+      }
+    </ol>
+  }
+</div>

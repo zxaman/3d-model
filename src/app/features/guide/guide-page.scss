@@ -54,6 +54,14 @@
   }
 }
 
+.guide__lead {
+  max-width: 62ch;
+  margin-bottom: var(--i3d-space-4);
+  font-size: var(--i3d-text-sm);
+  line-height: 1.6;
+  color: var(--i3d-text-muted);
+}
+
 .guide__steps {
   display: flex;
   flex-direction: column;
@@ -70,6 +78,11 @@
   h3 {
     font-size: var(--i3d-text-md);
     margin-bottom: 0.125rem;
+  }
+
+  p {
+    max-width: 68ch;
+    line-height: 1.6;
   }
 
   p {
@@ -128,6 +141,38 @@
   @include m.down('sm') {
     grid-template-columns: 1fr;
     gap: 0.125rem;
+  }
+}
+
+.guide__step-caption {
+  margin-left: var(--i3d-space-2);
+  font-size: var(--i3d-text-xs);
+  font-weight: 400;
+  color: var(--i3d-text-subtle);
+
+  &::before {
+    content: '·';
+    margin-right: var(--i3d-space-2);
+  }
+}
+
+.guide__row--pair {
+  grid-template-columns: 14rem 1fr;
+
+  @include m.down('sm') {
+    grid-template-columns: 1fr;
+  }
+
+  kbd {
+    display: inline-block;
+    padding: 0.0625rem 0.375rem;
+    font-family: var(--i3d-font-mono);
+    font-size: var(--i3d-text-2xs);
+    color: var(--i3d-text);
+    background: var(--i3d-bg);
+    border: 1px solid var(--i3d-border-strong);
+    border-bottom-width: 2px;
+    border-radius: var(--i3d-radius-sm);
   }
 }
 

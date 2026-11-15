@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -32,7 +33,7 @@ import { formatCount } from '@core/utils/format';
  */
 @Component({
   selector: 'i3d-model-viewport',
-  imports: [Icon, ButtonDirective, Spinner, DecimalPipe],
+  imports: [RouterLink, Icon, ButtonDirective, Spinner, DecimalPipe],
   templateUrl: './model-viewport.html',
   styleUrl: './model-viewport.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

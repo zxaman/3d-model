@@ -97,6 +97,26 @@
     color: var(--i3d-text-subtle);
   }
 
+  &__overlay-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--i3d-space-2);
+    margin-top: var(--i3d-space-2);
+    padding: 0.25rem var(--i3d-space-3);
+    font-size: var(--i3d-text-xs);
+    color: var(--i3d-accent);
+    background: var(--i3d-accent-soft);
+    border: 1px solid var(--i3d-accent-border);
+    border-radius: var(--i3d-radius-full);
+    text-decoration: none;
+
+    @include m.focus-ring;
+
+    &:hover {
+      background: color-mix(in srgb, var(--i3d-accent) 22%, transparent);
+    }
+  }
+
   &__progress {
     width: 8rem;
     height: 0.1875rem;

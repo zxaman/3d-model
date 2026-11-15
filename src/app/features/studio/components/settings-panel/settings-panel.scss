@@ -25,6 +25,30 @@
     line-height: 1.5;
   }
 
+  // The primary action of the whole page: it must be visible without opening
+  // anything, and it must not move when the copy under it changes length.
+  &__generate {
+    display: flex;
+    flex-direction: column;
+    gap: var(--i3d-space-2);
+    margin-top: var(--i3d-space-3);
+    padding: var(--i3d-space-3);
+    background: var(--i3d-bg-sunken);
+    border: 1px solid var(--i3d-border);
+    border-radius: var(--i3d-radius-md);
+  }
+
+  &__generate-hint {
+    min-height: 2.25rem;
+    font-size: var(--i3d-text-xs);
+    line-height: 1.45;
+    color: var(--i3d-text-subtle);
+
+    &.is-stale {
+      color: var(--i3d-warning);
+    }
+  }
+
   &__panel {
     border: 1px solid var(--i3d-border);
     border-radius: var(--i3d-radius-md);

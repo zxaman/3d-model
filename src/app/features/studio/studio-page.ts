@@ -7,7 +7,9 @@ import {
   input,
   viewChild,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { EXPORT_FORMATS, type ExportFormat } from '@core/services/export.service';
+import { Icon } from '@shared/ui';
 import { PreferencesService } from '@core/services/preferences.service';
 import { StudioStore } from './studio-store';
 import { ExportBar } from './components/export-bar/export-bar';
@@ -23,7 +25,7 @@ import { SettingsPanel } from './components/settings-panel/settings-panel';
  */
 @Component({
   selector: 'i3d-studio-page',
-  imports: [ExportBar, ImageDropzone, ModelViewport, SettingsPanel],
+  imports: [RouterLink, Icon, ExportBar, ImageDropzone, ModelViewport, SettingsPanel],
   providers: [StudioStore],
   templateUrl: './studio-page.html',
   styleUrl: './studio-page.scss',

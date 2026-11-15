@@ -8,6 +8,31 @@
       (valueChange)="setMode($event)"
     />
     <p class="settings__summary">{{ modeSummary() }}</p>
+
+    <div class="settings__generate">
+      <button
+        type="button"
+        i3dButton="primary"
+        size="lg"
+        [block]="true"
+        [busy]="busy()"
+        [disabled]="generateDisabled()"
+        (click)="regenerate.emit()"
+      >
+        @if (!busy()) {
+          <i3d-icon [name]="generateIcon()" [size]="17" />
+        }
+        {{ generateLabel() }}
+      </button>
+
+      <p
+        class="settings__generate-hint"
+        [class.is-stale]="stale() && !autoGenerate() && hasSource() && !busy()"
+        aria-live="polite"
+      >
+        {{ generateHint() }}
+      </p>
+    </div>
   </section>
 
   <details class="settings__panel" open>
@@ -236,13 +261,6 @@
         [checked]="autoGenerate()"
         (checkedChange)="autoGenerateChange.emit($event)"
       />
-
-      @if (!autoGenerate()) {
-        <button type="button" i3dButton="secondary" [block]="true" (click)="regenerate.emit()">
-          <i3d-icon name="refresh" [size]="16" />
-          Regenerate
-        </button>
-      }
     </div>
   </details>
 

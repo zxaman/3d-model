@@ -3,6 +3,11 @@
     <header class="studio__intro">
       <h1>Studio</h1>
       <p>Turn any image into an exportable 3D model — entirely in your browser.</p>
+
+      <a class="studio__guide" routerLink="/guide" fragment="how-to-use">
+        <i3d-icon name="book" [size]="15" />
+        New here? Follow the guided walkthrough
+      </a>
     </header>
 
     @if (store.source(); as source) {
@@ -34,6 +39,10 @@
       [presentation]="store.presentation()"
       [estimate]="store.estimate()"
       [autoGenerate]="store.autoGenerate()"
+      [hasSource]="store.source() !== null"
+      [hasModel]="store.modelObject() !== null"
+      [stale]="store.stale()"
+      [busy]="store.isBusy()"
       (settingsChange)="store.patchSettings($event)"
       (presentationChange)="store.patchPresentation($event)"
       (modeChange)="store.setMode($event)"
