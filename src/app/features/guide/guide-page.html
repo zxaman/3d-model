@@ -77,6 +77,43 @@
     </ol>
   </section>
 
+  <section class="guide__section" id="printing">
+    <h2>Printing your model</h2>
+    <p class="guide__lead">
+      Everything is sized for a real printer. Set the size in millimetres, pick the object you are
+      making, and let the print check tell you if something will not slice.
+    </p>
+
+    <ol class="guide__steps">
+      @for (step of printing; track step.title) {
+        <li>
+          <span class="guide__step-index u-mono">{{ $index + 1 }}</span>
+          <div>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.body }}</p>
+          </div>
+        </li>
+      }
+    </ol>
+
+    <div class="guide__table" role="table">
+      <div class="guide__row guide__row--header" role="row">
+        <span role="columnheader">Print as</span>
+        <span role="columnheader">Default size</span>
+        <span role="columnheader">What you get</span>
+      </div>
+      @for (preset of presets; track preset.label) {
+        <div class="guide__row" role="row">
+          <span role="cell"
+            ><strong>{{ preset.label }}</strong></span
+          >
+          <span role="cell" class="u-mono">{{ preset.size }}</span>
+          <span role="cell">{{ preset.summary }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
   <section class="guide__section">
     <h2>Choosing a mode</h2>
     <div class="guide__table" role="table">
@@ -116,9 +153,8 @@
       }
     </div>
     <p class="guide__note">
-      STL and OBJ are unitless. If your slicer imports the model at the wrong size, scale by
-      <span class="u-mono">25.4</span> — the app exports in metres-style units, slicers often expect
-      millimetres.
+      STL, OBJ and PLY carry no unit field, so the app exports in <strong>millimetres</strong>. A
+      model set to 100&nbsp;mm opens at 100&nbsp;mm — no scaling needed.
     </p>
   </section>
 

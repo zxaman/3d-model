@@ -91,4 +91,66 @@ describe('SettingsPanel', () => {
 
     expect(hint(host)).toContain('Up to date');
   });
+
+  describe('print controls', () => {
+    /** The `Print as` picker, found by its label rather than by DOM order. */
+    function presetSelect(host: HTMLElement): HTMLSelectElement {
+      const block = [...host.querySelectorAll('i3d-select')].find((node) =>
+        node.textContent?.includes('Print as'),
+      );
+      return block?.querySelector('select') as HTMLSelectElement;
+    }
+
+    function slider(host: HTMLElement, label: string): HTMLInputElement {
+      const block = [...host.querySelectorAll('i3d-slider')].find(
+        (node) => node.querySelector('label')?.textContent?.trim() === label,
+      );
+      return block?.querySelector('input[type=range]') as HTMLInputElement;
+    }
+
+    it('offers every printable object', async () => {
+      const host = await render({ hasSource: true });
+      const labels = [...presetSelect(host).options].map((option) => option.textContent?.trim());
+
+      expect(labels).toEqual(['Plain slab', 'Keychain', 'Coin', 'Plaque', 'Lithophane']);
+    });
+
+    it('emits the chosen preset', async () => {
+      const host = await render({ hasSource: true });
+      const emitted: string[] = [];
+      fixture.componentInstance.printPresetChange.subscribe((value) => emitted.push(value));
+
+      const select = presetSelect(host);
+      select.value = 'coin';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+
+      expect(emitted).toEqual(['coin']);
+    });
+
+    it('emits a size in millimetres', async () => {
+      const host = await render({ hasSource: true });
+      const emitted: number[] = [];
+      fixture.componentInstance.settingsChange.subscribe((patch) => {
+        if (typeof patch['widthMm'] === 'number') emitted.push(patch['widthMm']);
+      });
+
+      const range = slider(host, 'Size');
+      range.value = '150';
+      range.dispatchEvent(new Event('input', { bubbles: true }));
+
+      expect(emitted).toEqual([150]);
+    });
+
+    it('labels the length sliders in millimetres', async () => {
+      const host = await render({ hasSource: true });
+
+      const size = slider(host, 'Size');
+      const depth = slider(host, 'Depth');
+
+      expect(size.max).toBe('300');
+      // The readout is what tells the user these are real dimensions.
+      expect(host.textContent).toContain('mm');
+      expect(depth.value).toBe(String(MODE_PRESETS['relief'].depth));
+    });
+  });
 });

@@ -1,8 +1,11 @@
 import { generateMesh, type BuilderSettings } from './builders';
 
+// Lengths are millimetres, exactly as the UI and every slicer treat them.
 const BASE_SETTINGS: BuilderSettings = {
   mode: 'relief',
-  depth: 0.5,
+  widthMm: 100,
+  printPreset: 'none',
+  depth: 8,
   smoothing: 0,
   detail: 0,
   contrast: 1,
@@ -10,7 +13,7 @@ const BASE_SETTINGS: BuilderSettings = {
   depthSource: 'luminance',
   threshold: 0.5,
   base: false,
-  baseThickness: 0.1,
+  baseThickness: 2,
   voxelLayers: 8,
   pointStride: 1,
 };
@@ -132,12 +135,14 @@ describe('builders', () => {
 
     it('closes the volume when a base is requested', () => {
       const open = build({ mode: 'relief', base: false });
-      const closed = build({ mode: 'relief', base: true, baseThickness: 0.1 });
+      const closed = build({ mode: 'relief', base: true, baseThickness: 2 });
 
       expect(closed.watertight).toBe(true);
-      // 12 border segments × 2 triangles + 2 for the cap, on top of the surface.
-      expect(closed.stats.triangles - open.stats.triangles).toBe(12 * 2 + 2);
-      expect(closed.bounds.min[1]).toBeCloseTo(-0.1, 5);
+      // 12 border segments × 2 triangles for the walls, plus a 12-triangle fan
+      // for the back — the seal shares the surface's own vertices, so it adds no
+      // duplicate rim.
+      expect(closed.stats.triangles - open.stats.triangles).toBe(12 * 2 + 12);
+      expect(closed.bounds.min[1]).toBeCloseTo(-2, 5);
     });
 
     it('produces unit-length normals', () => {
@@ -218,18 +223,19 @@ describe('builders', () => {
     });
 
     it('raises the top face to the requested depth', () => {
-      const payload = build({ mode: 'extrude', base: true, depth: 0.4, threshold: 0.1 });
+      const payload = build({ mode: 'extrude', base: true, depth: 8, threshold: 0.1 });
 
-      expect(payload.bounds.max[1]).toBeCloseTo(0.4, 5);
+      expect(payload.bounds.max[1]).toBeCloseTo(8, 5);
     });
   });
 
   describe('voxel', () => {
     it('emits whole quads of non-indexed geometry', () => {
-      const payload = build({ mode: 'voxel', voxelLayers: 6, depth: 0.6 });
+      const payload = build({ mode: 'voxel', voxelLayers: 6, depth: 12 });
 
       expect(payload.indices).toBeNull();
-      expect(payload.watertight).toBe(false);
+      // Each column is a closed stack of boxes, so the union is watertight.
+      expect(payload.watertight).toBe(true);
       // Every face is a quad: two triangles, six vertices.
       expect(payload.stats.vertices % 6).toBe(0);
       expect(payload.stats.triangles).toBe(payload.stats.vertices / 3);
@@ -237,35 +243,108 @@ describe('builders', () => {
     });
 
     it('spans the requested stack height', () => {
-      const payload = build({ mode: 'voxel', voxelLayers: 6, depth: 0.6 }, 4, flatPixels(4, 255));
+      const payload = build({ mode: 'voxel', voxelLayers: 6, depth: 12 }, 4, flatPixels(4, 255));
 
       expect(payload.bounds.min[1]).toBeCloseTo(0, 5);
-      expect(payload.bounds.max[1]).toBeCloseTo(0.6, 5);
+      expect(payload.bounds.max[1]).toBeCloseTo(12, 5);
     });
 
     it('stacks proportionally to the height field', () => {
-      const payload = build({ mode: 'voxel', voxelLayers: 6, depth: 0.6 }, 4, flatPixels(4, 128));
+      const payload = build({ mode: 'voxel', voxelLayers: 6, depth: 12 }, 4, flatPixels(4, 128));
 
       // A mid-grey field fills roughly half the stack.
-      expect(payload.bounds.max[1]).toBeCloseTo(0.3, 1);
+      expect(payload.bounds.max[1]).toBeCloseTo(6, 1);
     });
 
     it('stacks more cubes as the resolution and layer count grow', () => {
-      const shallow = build({ mode: 'voxel', voxelLayers: 4, depth: 0.4 }, 6, gradientPixels(6));
-      const tall = build({ mode: 'voxel', voxelLayers: 12, depth: 0.4 }, 6, gradientPixels(6));
+      const shallow = build({ mode: 'voxel', voxelLayers: 4, depth: 8 }, 6, gradientPixels(6));
+      const tall = build({ mode: 'voxel', voxelLayers: 12, depth: 8 }, 6, gradientPixels(6));
 
       expect(tall.stats.vertices).toBeGreaterThan(shallow.stats.vertices);
     });
 
     it('culls the faces a neighbour at the same height would hide', () => {
-      const payload = build({ mode: 'voxel', voxelLayers: 8, depth: 0.5 }, 6, gradientPixels(6));
+      const payload = build({ mode: 'voxel', voxelLayers: 8, depth: 10 }, 6, gradientPixels(6));
 
-      // Worst case is one cube per column per level, six faces each (36 vertices).
+      // Worst case is every column filled to the top with every face emitted:
+      // eight levels × six faces × two triangles × three vertices.
       const columns = countColumns(payload);
-      const worstCase = columns * Math.round(8 * 0.5 + 1) * 36;
 
-      expect(payload.stats.vertices).toBeLessThan(worstCase);
       expect(payload.stats.vertices).toBeLessThan(columns * 8 * 36);
+    });
+  });
+
+  describe('print-ready output', () => {
+    it('measures the model in millimetres', () => {
+      // The whole point: STL and OBJ carry no unit, so a slicer reads these
+      // numbers as millimetres. A model asked for at 100 mm must be 100 across.
+      for (const widthMm of [20, 100, 250]) {
+        const payload = build({ mode: 'relief', widthMm });
+
+        expect(payload.bounds.max[0] - payload.bounds.min[0]).toBeCloseTo(widthMm, 4);
+        expect(payload.bounds.max[2] - payload.bounds.min[2]).toBeCloseTo(widthMm, 4);
+      }
+    });
+
+    it('keeps the aspect ratio while honouring the requested width', () => {
+      const payload = generateMesh({
+        pixels: flatPixels(8),
+        width: 8,
+        height: 4,
+        settings: { ...BASE_SETTINGS, widthMm: 160 },
+      });
+
+      const width = payload.bounds.max[0] - payload.bounds.min[0];
+      const depth = payload.bounds.max[2] - payload.bounds.min[2];
+
+      expect(width).toBeCloseTo(160, 4);
+      expect(depth).toBeCloseTo(80, 4);
+    });
+
+    it('seals the relief by sharing the surface vertices, not duplicating them', () => {
+      const size = 4;
+      const open = build({ mode: 'relief', base: false }, size);
+      const closed = build({ mode: 'relief', base: true }, size);
+
+      // A 4 × 4 grid has a 12-point perimeter: 12 extra vertices for the bottom
+      // ring plus one for the fan centre. The old skirt emitted two vertices per
+      // border segment, which left the shell visually closed but not welded.
+      const perimeter = 2 * size + 2 * size - 4;
+      expect(closed.stats.vertices - open.stats.vertices).toBe(perimeter + 1);
+    });
+
+    it('closes the volume for extrude and voxel too', () => {
+      expect(build({ mode: 'extrude', base: true, threshold: 0.1 }).watertight).toBe(true);
+      expect(build({ mode: 'voxel', threshold: 0.1 }).watertight).toBe(true);
+    });
+
+    it('pulls the corners in for a round preset', () => {
+      const size = 8;
+      const cornerOf = (printPreset: 'none' | 'coin'): number => {
+        const payload = build({ mode: 'relief', printPreset, base: false }, size);
+        const last = (payload.stats.vertices - 1) * 3;
+        return Math.hypot(payload.positions[last] ?? 0, payload.positions[last + 2] ?? 0);
+      };
+
+      // A square corner sits at half the diagonal; a circle pulls it to the radius.
+      expect(cornerOf('none')).toBeCloseTo((100 / 2) * Math.SQRT2, 3);
+      expect(cornerOf('coin')).toBeCloseTo(100 / 2, 3);
+    });
+
+    it('raises a rim above the deepest point of the image', () => {
+      const payload = build({ mode: 'relief', printPreset: 'plaque', depth: 8, base: false });
+
+      // The plaque rim is 40% taller than the peak, so the outline stands proud.
+      expect(payload.bounds.max[1]).toBeCloseTo(8 * 1.4, 3);
+    });
+
+    it('hangs a loop off a keychain', () => {
+      const plain = build({ mode: 'relief', printPreset: 'none', base: true }, 8);
+      const keychain = build({ mode: 'relief', printPreset: 'keychain', base: true }, 8);
+
+      expect(keychain.stats.vertices).toBeGreaterThan(plain.stats.vertices);
+      // The tab sticks out past the body, so the model is deeper than the image.
+      expect(keychain.bounds.min[2]).toBeLessThan(plain.bounds.min[2]);
     });
   });
 
@@ -292,7 +371,7 @@ describe('builders', () => {
         pixels: flatPixels(4, 255),
         width: 4,
         height: 4,
-        settings: { ...BASE_SETTINGS, mode: 'points', depth: 0.5 },
+        settings: { ...BASE_SETTINGS, mode: 'points', depth: 10 },
       });
 
       expect(payload.bounds.max[1]).toBeGreaterThanOrEqual(0);

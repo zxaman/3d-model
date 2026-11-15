@@ -13,6 +13,8 @@ Built with Angular 22 (zoneless, standalone, signals) and three.js.
 |                           |                                                                                                             |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | **Four conversion modes** | Relief (smooth displaced surface), Extrude (flat-topped silhouette), Voxel (blocky cube shell), Point cloud |
+| **Sized for printing**    | Every length in millimetres; keychain, coin, plaque and lithophane presets                                  |
+| **Print check**           | Manifoldness, wall thickness, steep slopes and bed size, reported in plain language before you download     |
 | **Live controls**         | Detail grid, depth, smoothing, detail recovery, contrast, invert, height source, cut-off, solid base        |
 | **Real exports**          | GLB (textured + vertex colours), OBJ, STL (binary, printable), PLY, plus a PNG viewport snapshot            |
 | **Saved projects**        | Gallery with thumbnails, rename, duplicate, delete-with-undo, storage meter                                 |
@@ -33,6 +35,10 @@ Then drop an image on the studio panel (or paste one from the clipboard), press
 **Generate model**, and export. If you would rather be shown, open **How it
 works** — the guided walkthrough plays through the whole flow, or you can step
 through it with the arrow keys.
+
+To make something you can hold, open the **Print** section of the settings
+panel: set the size in millimetres, pick what you are making, and read the print
+check under the viewport before you export.
 
 ### Scripts
 
@@ -97,24 +103,68 @@ every step is a pure function you can unit-test:
    Pixels with no contrast keep their level rather than collapsing to zero, so a
    solid-grey logo still extrudes and voxelises.
 4. **Generate geometry** (in a worker):
-   - **Relief** — indexed surface with area-weighted smooth normals; optionally
-     closed with a skirt and a back face to make it watertight.
+   - **Relief** — indexed surface with area-weighted smooth normals; closed by a
+     seal that _shares_ the surface's own rim vertices, so the result is welded
+     rather than merely looking closed.
    - **Extrude** — binary threshold per cell, flat top, straight walls, base cap.
      Non-indexed, so the crisp flat shading survives export.
-   - **Voxel** — one exposed cube per stack level; faces hidden by an equally
-     tall neighbour are culled, which typically halves the triangle count.
+   - **Voxel** — one cube per stack level; faces hidden by an equally tall
+     neighbour are culled. Every level of a column is considered, so the stack
+     closes into a solid instead of leaving a floating lid.
    - **Points** — coloured particles at their sampled depth.
-5. **Render & export** — three.js with image-based lighting (PMREM + room
-   environment), then the exact same `Object3D` is serialised by the official
-   exporters.
+5. **Check & render & export** — the mesh is analysed as a slicer would see it
+   (see [Printing](#printing)), three.js draws it with image-based lighting
+   (PMREM + room environment), and the exact same `Object3D` is serialised by the
+   official exporters.
 
 ### Coordinate conventions
 
-Y is up, the model is centred on the origin and `PLANE_SIZE` (2 units) wide on
-its longest edge, front faces are counter-clockwise, and vertex colours are
+Y is up, the model is centred on the origin and `widthMm` millimetres across its
+longest edge, front faces are counter-clockwise, and vertex colours are
 linear-space RGB (what three.js and glTF expect). Those conventions are asserted
 by the unit tests, because a flipped winding or an sRGB/linear mix-up is easy to
 introduce and hard to spot in a screenshot.
+
+---
+
+## Printing
+
+STL, OBJ and PLY carry **no unit field**: every slicer reads the raw numbers as
+millimetres. So the engine works in millimetres from end to end — Depth, Base
+thickness and Size are real dimensions, and a model set to 100 mm leaves the app
+100 mm wide.
+
+| Piece           | What it does                                                          |
+| --------------- | --------------------------------------------------------------------- |
+| **Size**        | Longest edge in millimetres (20–300).                                 |
+| **Print as**    | Plain slab, Keychain (with a hanging loop), Coin, Plaque, Lithophane. |
+| **Print check** | Runs the same analysis a slicer does, and says what to change.        |
+
+### Presets shape the outline, not just the numbers
+
+The grid is warped onto a superellipse rather than clipped, so a coin really is
+round: the outline is exact, the sampling grid keeps its topology, and the seal
+can share vertices with the surface it closes. Each preset also applies the
+physical settings that make sense for the object — a lithophane is thin and
+inverted so it reads when you hold it up to the light; a keychain is small,
+chunky, and gets a loop that interpenetrates the body so slicers union it
+cleanly.
+
+### The print check
+
+`checkPrintability()` welds the mesh by position — which is what a slicer does —
+and reports, in plain language:
+
+- **Open edges** — the surface is a shell, so inside and outside are undefined
+  (blocker: turn on the solid base).
+- **Too-thin backing** — under ~0.8 mm a 0.4 mm nozzle cannot lay two walls
+  (lithophanes are exempt: light has to get through).
+- **Steep slopes** — more than 60° prints as a ragged near-vertical wall.
+- **Bed size** — anything past ~220 mm has to be cut up or scaled down.
+
+Older projects stored lengths in abstract model units; on load they are scaled by
+the ratio between the old and new model width, so a project saved before this
+change reopens at the size it was designed at.
 
 ---
 
@@ -210,15 +260,18 @@ and the viewport explains why it is blank.
 npm run test:ci
 ```
 
-98 unit tests covering the parts where a silent error would be expensive: height
-field maths, geometry winding and counts, attribute alignment, persistence and
-re-validation, storage quota handling, the studio and gallery routes, and the
-viewport's contract with the three.js engine (which is injectable precisely so
-that contract can be tested without a GPU).
+139 unit tests covering the parts where a silent error would be expensive: height
+field maths, geometry winding and counts, attribute alignment, millimetre sizing,
+manifoldness of the sealed solid, the print check's findings, legacy settings
+migration, persistence and re-validation, storage quota handling, the studio and
+gallery routes, and the viewport's contract with the three.js engine (which is
+injectable precisely so that contract can be tested without a GPU).
 
 Rendering itself is not covered by unit tests — jsdom has no WebGL. It was
 verified in headless Chromium instead: upload, all four modes, live
-regeneration, save, reopen from the gallery, and GLB/OBJ/STL/PLY export.
+regeneration, every print preset, save, reopen from the gallery, and
+GLB/OBJ/STL/PLY export — with the exported STL parsed back and its bounding box
+measured to confirm it really is the requested size in millimetres.
 
 ---
 

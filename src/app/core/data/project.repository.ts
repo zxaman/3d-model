@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import type { ProjectDraft, ProjectRecord, ProjectSummary } from '@core/models/project.model';
 import { PROJECT_SCHEMA_VERSION } from '@core/models/project.model';
-import { normalizePresentation, normalizeSettings } from '@core/models/generation.model';
+import { normalizePresentation, normalizeSettingsVersioned } from '@core/models/generation.model';
 import { createId } from '@core/utils/id';
 import { StorageService } from '@core/storage/storage.service';
 import {
@@ -61,7 +61,9 @@ export class ProjectRepository {
 
     return {
       ...stored,
-      settings: normalizeSettings(stored.settings),
+      // The stored schema decides how lengths are interpreted: schema 1 recorded
+      // them in abstract model units, schema 2 in millimetres.
+      settings: normalizeSettingsVersioned(stored.settings, stored.schema),
       presentation: normalizePresentation(stored.presentation),
     };
   }
@@ -169,7 +171,7 @@ export class ProjectRepository {
         id,
         toSummary({
           ...stored,
-          settings: normalizeSettings(stored.settings),
+          settings: normalizeSettingsVersioned(stored.settings, stored.schema),
           presentation: normalizePresentation(stored.presentation),
         }),
       );
