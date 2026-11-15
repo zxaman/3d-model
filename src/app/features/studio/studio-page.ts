@@ -35,7 +35,15 @@ import { SettingsPanel } from './components/settings-panel/settings-panel';
   },
 })
 export class StudioPage {
-  /** Bound from the `?id=` query param by `withComponentInputBinding`. */
+  /**
+   * Bound from the `?projectId=` query param by `withComponentInputBinding`.
+   *
+   * The name is load-bearing: router input binding matches query params to
+   * inputs by their binding name, so an input called `projectId` is only ever
+   * fed by a param called `projectId`. Aliasing it to `id` would work, but the
+   * mismatch is invisible — and it is what let the gallery's "Open" link
+   * silently land on an empty studio.
+   */
   readonly projectId = input<string | undefined>();
 
   protected readonly store = inject(StudioStore);
@@ -48,7 +56,7 @@ export class StudioPage {
   });
 
   constructor() {
-    // Deep link from the gallery: `/studio?id=<project>`.
+    // Deep link from the gallery: `/studio?projectId=<project>`.
     effect(() => {
       const requested = this.projectId();
       if (requested !== undefined && requested !== this.store.projectId()) {

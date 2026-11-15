@@ -7,6 +7,7 @@ import {
   afterNextRender,
   computed,
   effect,
+  inject,
   input,
   output,
   signal,
@@ -14,7 +15,7 @@ import {
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import type { Object3D } from 'three';
-import { SceneEngine } from '@engine/three/scene-engine';
+import { VIEWPORT_ENGINE_FACTORY, type ViewportEngine } from '@engine/three/scene-engine';
 import { PHASE_LABELS } from '@engine/workers/mesh-worker.contract';
 import type {
   GenerationPhase,
@@ -51,7 +52,8 @@ export class ModelViewport implements OnDestroy {
   readonly autoRotateChange = output<boolean>();
 
   private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
-  private engine: SceneEngine | null = null;
+  private readonly engines = inject(VIEWPORT_ENGINE_FACTORY);
+  private engine: ViewportEngine | null = null;
 
   /** `true` when the browser cannot provide a WebGL context. */
   readonly unsupported = signal(false);
@@ -61,19 +63,19 @@ export class ModelViewport implements OnDestroy {
 
   constructor() {
     afterNextRender(() => {
-      if (!SceneEngine.isSupported()) {
+      if (!this.engines.isSupported()) {
         this.unsupported.set(true);
         return;
       }
 
       try {
-        this.engine = new SceneEngine({
+        this.engine = this.engines.create({
           canvas: this.canvas().nativeElement,
           background: this.presentation().background,
           grid: this.presentation().grid,
           autoRotate: this.presentation().autoRotate,
         });
-        this.sync();
+        this.sync(this.object(), this.presentation());
       } catch (error) {
         // Software renderers and blocked GPU processes land here too.
         console.error('[i3d] WebGL viewport failed to start', error);
@@ -82,7 +84,12 @@ export class ModelViewport implements OnDestroy {
       }
     });
 
-    effect(() => this.sync());
+    // The inputs are read *here*, in the effect body, rather than inside
+    // `sync()`. An effect only tracks the signals it reads while it runs, so a
+    // helper that bailed out before reading one would register no dependency
+    // and silently stop reacting to it — which is exactly how the viewport once
+    // failed to notice a generated model.
+    effect(() => this.sync(this.object(), this.presentation()));
   }
 
   ngOnDestroy(): void {
@@ -100,19 +107,18 @@ export class ModelViewport implements OnDestroy {
   }
 
   /**
-   * Pushes every input into the engine. Idempotent, and safe to call before the
-   * engine exists (WebGL setup is deferred to `afterNextRender`).
+   * Pushes the given inputs into the engine. Idempotent, and safe to call
+   * before the engine exists (WebGL setup is deferred to `afterNextRender`).
+   *
+   * Values are passed in rather than read from the inputs, so the caller — the
+   * effect — is what subscribes to them.
    */
-  private sync(): void {
+  private sync(object: Object3D | null, presentation: PresentationSettings): void {
     const engine = this.engine;
     if (engine === null) {
       return;
     }
 
-    const presentation = this.presentation();
-
-    // Read every reactive input so the effect tracks them all.
-    const object = this.object();
     if (engine.content !== object) {
       engine.setContent(object);
       if (object !== null) {
