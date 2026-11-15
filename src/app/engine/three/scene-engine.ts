@@ -93,6 +93,8 @@ export class SceneEngine implements ViewportEngine {
 
   #content: Object3D | null = null;
   #grid: GridHelper | null = null;
+  #key: DirectionalLight | null = null;
+  #fill: DirectionalLight | null = null;
   #ground: Mesh | null = null;
   #dirty = true;
   #disposed = false;
@@ -321,10 +323,12 @@ export class SceneEngine implements ViewportEngine {
     key.shadow.bias = -0.0006;
     key.shadow.normalBias = 0.02;
     this.scene.add(key);
+    this.#key = key;
 
     const fill = new DirectionalLight(0x93a9ff, 0.5);
     fill.position.set(-2.6, 1.4, -2.2);
     this.scene.add(fill);
+    this.#fill = fill;
 
     this.scene.add(new AmbientLight(0xffffff, 0.12));
 
@@ -350,18 +354,36 @@ export class SceneEngine implements ViewportEngine {
       this.#grid.scale.setScalar(size / 8);
     }
 
-    const key = this.scene.children.find((child): child is DirectionalLight => {
-      return child instanceof DirectionalLight && child.castShadow;
-    });
-    if (key !== undefined) {
-      const extent = Math.max(1, radius * 2.2);
-      key.shadow.camera.left = -extent;
-      key.shadow.camera.right = extent;
-      key.shadow.camera.top = extent;
-      key.shadow.camera.bottom = -extent;
-      key.shadow.camera.near = 0.1;
-      key.shadow.camera.far = extent * 8;
-      key.shadow.camera.updateProjectionMatrix();
+    // Lights and the shadow-catcher are sized from the model rather than fixed,
+    // because the model is now measured in millimetres: a key light parked at
+    // 3.6 units would sit *inside* a 100 mm print.
+    //
+    // The multipliers are the original fixed positions divided by the radius of
+    // the model they were tuned against (about 1.41), so a model at any scale is
+    // lit from exactly the same relative direction.
+    const extent = Math.max(0.001, radius * 2.2);
+
+    if (this.#key !== null) {
+      this.#key.position.set(radius * 1.7, radius * 2.55, radius * 1.98);
+
+      const distance = this.#key.position.length();
+      this.#key.shadow.camera.left = -extent;
+      this.#key.shadow.camera.right = extent;
+      this.#key.shadow.camera.top = extent;
+      this.#key.shadow.camera.bottom = -extent;
+      this.#key.shadow.camera.near = Math.max(0.001, distance * 0.05);
+      this.#key.shadow.camera.far = distance * 6;
+      this.#key.shadow.camera.updateProjectionMatrix();
+    }
+
+    if (this.#fill !== null) {
+      this.#fill.position.set(-radius * 1.84, radius * 0.99, -radius * 1.56);
+    }
+
+    if (this.#ground !== null) {
+      // The plane is authored at 40 × 40 and scaled, so it always out-reaches
+      // the model and never clips a cast shadow.
+      this.#ground.scale.setScalar(Math.max(0.05, (radius * 24) / 40));
     }
   }
 

@@ -2,10 +2,12 @@ import { Injectable, OnDestroy, computed, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import {
   MODE_PRESETS,
+  PRINT_PRESET_CATALOG,
   type GenerationResult,
   type GenerationSettings,
   type PresentationSettings,
 } from '@core/models/generation.model';
+import { checkPrintability, type PrintReport } from '@engine/geometry/print-check';
 import { estimateComplexity } from '@core/models/estimate';
 import type { ProjectDraft } from '@core/models/project.model';
 import { GenerationService, type PixelBuffer } from '@core/services/generation.service';
@@ -18,7 +20,7 @@ import { ExportService, type ExportFormat } from '@core/services/export.service'
 import { ProjectRepository } from '@core/data/project.repository';
 import { StorageQuotaError } from '@core/storage/storage.service';
 import { createId } from '@core/utils/id';
-import type { GenerationPhase, GenerationMode } from '@core/models/generation.model';
+import type { GenerationPhase, GenerationMode, PrintPreset } from '@core/models/generation.model';
 
 export type StudioStatus = 'empty' | 'loading' | 'generating' | 'ready' | 'failed';
 
@@ -103,6 +105,28 @@ export class StudioStore implements OnDestroy {
 
   readonly mode = computed(() => this.settingsState().mode);
 
+  /**
+   * Pre-flight analysis of the model on screen.
+   *
+   * Lazy on purpose: welding a few hundred thousand vertices costs tens of
+   * milliseconds, and a `computed` only runs when something reads it — so the
+   * cost is paid when the panel asks for it, not on every regeneration.
+   */
+  readonly printReport = computed<PrintReport | null>(() => {
+    const result = this.resultState();
+    if (result === null) {
+      return null;
+    }
+
+    const settings = this.settingsState();
+    return checkPrintability(result.payload, {
+      mode: settings.mode,
+      printPreset: settings.printPreset,
+      baseThickness: settings.baseThickness,
+      base: settings.base,
+    });
+  });
+
   // -- Actions --------------------------------------------------------------
 
   async loadFile(file: File): Promise<void> {
@@ -170,6 +194,23 @@ export class StudioStore implements OnDestroy {
       depthSource: current.depthSource,
       baseThickness: current.baseThickness,
     });
+
+    this.#afterSettingsChange();
+  }
+
+  /**
+   * Applies a printable-object preset.
+   *
+   * A preset is a *physical* configuration — size, depth, backing thickness,
+   * even the mode — so it overwrites those settings wholesale rather than
+   * nudging them. Everything it sets stays editable afterwards.
+   */
+  setPrintPreset(preset: PrintPreset): void {
+    this.settingsState.update((current) => ({
+      ...current,
+      printPreset: preset,
+      ...PRINT_PRESET_CATALOG[preset].patch,
+    }));
 
     this.#afterSettingsChange();
   }

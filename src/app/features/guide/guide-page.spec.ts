@@ -32,7 +32,7 @@ describe('GuidePage', () => {
       fixture.nativeElement.querySelectorAll('.guide__steps h3'),
     ) as HTMLElement[];
 
-    // The pipeline steps plus the seven walkthrough steps.
-    expect(headings.length).toBe(12);
+    // Seven walkthrough steps, five pipeline steps, four printing steps.
+    expect(headings.length).toBe(16);
   });
 });

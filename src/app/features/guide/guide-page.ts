@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { DEFAULT_GENERATION_SETTINGS, PRINT_PRESET_OPTIONS } from '@core/models/generation.model';
 import { EXPORT_FORMATS } from '@core/services/export.service';
 import { Icon } from '@shared/ui';
 import { Tutorial } from './tutorial/tutorial';
@@ -83,6 +84,37 @@ export class GuidePage {
     },
   ];
 
+  /**
+   * What each printable object gives you.
+   *
+   * Kept next to the settings catalogue it summarises so the two cannot drift:
+   * the patch a preset applies is the single source of truth.
+   */
+  protected readonly presets = PRINT_PRESET_OPTIONS.map((preset) => ({
+    label: preset.label,
+    summary: preset.summary,
+    size: `${preset.patch.widthMm ?? DEFAULT_GENERATION_SETTINGS.widthMm} mm`,
+  }));
+
+  protected readonly printing = [
+    {
+      title: 'Set the size you actually want',
+      body: 'Sizes are millimetres, because STL, OBJ and PLY carry no unit at all and every slicer reads raw numbers as millimetres. A model set to 100 mm opens at 100 mm — no rescaling in Cura, PrusaSlicer or Bambu Studio.',
+    },
+    {
+      title: 'Pick what you are making',
+      body: '“Print as” applies a whole physical configuration at once: a keychain becomes a 60 mm tag with a hanging loop, a coin gets a raised rim, a lithophane turns thin and inverted so it reads when you hold it up to the light.',
+    },
+    {
+      title: 'Read the print check',
+      body: 'The bar under the viewport measures the model as a slicer sees it: whether the surface closes, how thick the backing is, whether anything is too steep or too big for the bed. Anything it reports comes with the setting that fixes it.',
+    },
+    {
+      title: 'Export and slice',
+      body: 'STL is what nearly every slicer wants — it carries triangles and nothing else. OBJ and PLY keep colour if your slicer reads it, and GLB is the one to keep as an archive.',
+    },
+  ];
+
   protected readonly formats = EXPORT_FORMATS.map((format) => ({
     label: format.label,
     carries: CARRIES[format.id],
@@ -116,8 +148,12 @@ export class GuidePage {
       fix: 'WebGL did not start. Generation and export still work — try a different browser or enable hardware acceleration.',
     },
     {
-      problem: 'The print is not watertight',
-      fix: 'Turn on the solid base before exporting an STL, so the mesh is closed with side walls and a back face.',
+      problem: 'The model opens tiny in my slicer',
+      fix: 'Check the Size slider in the Print section. Older projects are migrated to millimetres automatically, but a model built before that change may need a new size.',
+    },
+    {
+      problem: 'The print check says the surface is open',
+      fix: 'Turn on “Add a solid base”, which closes the model with side walls and a back face. Without it the mesh is a shell, and a slicer cannot tell inside from outside.',
     },
     {
       problem: 'Saving fails with a storage error',
@@ -128,7 +164,8 @@ export class GuidePage {
   protected readonly tips = [
     'Start from a high-contrast image — flat lighting produces a flat model.',
     'Use Smoothing to kill JPEG noise, then Detail recovery to bring edges back.',
-    'Turn on the solid base before exporting an STL, so the mesh is watertight.',
+    'Keep the backing at least 0.8 mm thick — thinner than two nozzle widths and it snaps.',
+    'Orient the model flat on its back in the slicer; that is the direction it was built for.',
     'For logos on transparent backgrounds, switch "Height from" to Transparency.',
     'Lower the detail slider if the viewport feels sluggish; triangle count scales with its square.',
   ];

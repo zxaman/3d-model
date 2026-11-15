@@ -36,6 +36,31 @@
   </section>
 
   <details class="settings__panel" open>
+    <summary>Print</summary>
+
+    <div class="settings__fields">
+      <i3d-select
+        label="Print as"
+        [value]="settings().printPreset"
+        [options]="presetOptions"
+        [hint]="presetSummary()"
+        (valueChange)="setPrintPreset($event)"
+      />
+
+      <i3d-slider
+        label="Size"
+        [value]="settings().widthMm"
+        [min]="ranges.widthMm.min"
+        [max]="ranges.widthMm.max"
+        [step]="ranges.widthMm.step"
+        [format]="millimetreFormat"
+        hint="Longest edge of the finished print, in millimetres"
+        (valueChange)="patch({ widthMm: $event })"
+      />
+    </div>
+  </details>
+
+  <details class="settings__panel" open>
     <summary>Geometry</summary>
 
     <div class="settings__fields">
@@ -62,6 +87,8 @@
         [min]="ranges.depth.min"
         [max]="ranges.depth.max"
         [step]="ranges.depth.step"
+        [format]="millimetreFormat"
+        [hint]="'How far the surface rises, in millimetres'"
         (valueChange)="patch({ depth: $event })"
       />
 
@@ -138,6 +165,7 @@
             [min]="ranges.pointSize.min"
             [max]="ranges.pointSize.max"
             [step]="ranges.pointSize.step"
+            [format]="millimetreFormat"
             (valueChange)="patch({ pointSize: $event })"
           />
         }
@@ -180,6 +208,7 @@
           [min]="ranges.baseThickness.min"
           [max]="ranges.baseThickness.max"
           [step]="ranges.baseThickness.step"
+          [format]="millimetreFormat"
           (valueChange)="patch({ baseThickness: $event })"
         />
       }

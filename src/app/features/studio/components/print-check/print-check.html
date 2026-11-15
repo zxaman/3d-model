@@ -1,0 +1,40 @@
+@if (report(); as report) {
+  <section class="print-check" [attr.data-status]="report.status">
+    <button
+      type="button"
+      class="print-check__summary"
+      [attr.aria-expanded]="open()"
+      [attr.aria-label]="'Print check: ' + report.headline"
+      [disabled]="issueCount() === 0"
+      (click)="toggle()"
+    >
+      <i3d-icon [name]="icon()" [size]="16" />
+      <span class="print-check__headline">{{ report.headline }}</span>
+
+      @if (issueCount() > 0) {
+        <span class="print-check__count">{{ issueCount() }}</span>
+        <i3d-icon
+          name="chevron-right"
+          [size]="14"
+          class="print-check__chevron"
+          [class.is-open]="open()"
+        />
+      }
+    </button>
+
+    @if (open()) {
+      <ul class="print-check__issues">
+        @for (issue of report.issues; track issue.id) {
+          <li class="print-check__issue" [attr.data-severity]="issue.severity">
+            <h3 class="print-check__title">{{ issue.title }}</h3>
+            <p class="print-check__detail">{{ issue.detail }}</p>
+            <p class="print-check__fix">
+              <i3d-icon name="sparkles" [size]="13" />
+              {{ issue.fix }}
+            </p>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

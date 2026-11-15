@@ -46,6 +46,7 @@
       (settingsChange)="store.patchSettings($event)"
       (presentationChange)="store.patchPresentation($event)"
       (modeChange)="store.setMode($event)"
+      (printPresetChange)="store.setPrintPreset($event)"
       (autoGenerateChange)="setAutoGenerate($event)"
       (regenerate)="regenerate()"
     />
@@ -62,6 +63,8 @@
       [generationMs]="store.generationMs()"
       (autoRotateChange)="store.patchPresentation({ autoRotate: $event })"
     />
+
+    <i3d-print-check [report]="store.printReport()" />
 
     <i3d-export-bar
       [mode]="store.mode()"

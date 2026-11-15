@@ -15,6 +15,7 @@ import { StudioStore } from './studio-store';
 import { ExportBar } from './components/export-bar/export-bar';
 import { ImageDropzone } from './components/image-dropzone/image-dropzone';
 import { ModelViewport } from './components/model-viewport/model-viewport';
+import { PrintCheck } from './components/print-check/print-check';
 import { SettingsPanel } from './components/settings-panel/settings-panel';
 
 /**
@@ -25,7 +26,7 @@ import { SettingsPanel } from './components/settings-panel/settings-panel';
  */
 @Component({
   selector: 'i3d-studio-page',
-  imports: [RouterLink, Icon, ExportBar, ImageDropzone, ModelViewport, SettingsPanel],
+  imports: [RouterLink, Icon, ExportBar, ImageDropzone, ModelViewport, PrintCheck, SettingsPanel],
   providers: [StudioStore],
   templateUrl: './studio-page.html',
   styleUrl: './studio-page.scss',

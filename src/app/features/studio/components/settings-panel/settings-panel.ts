@@ -2,12 +2,15 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { DecimalPipe } from '@angular/common';
 import {
   MODE_CATALOG,
+  PRINT_PRESET_CATALOG,
+  PRINT_PRESET_OPTIONS,
   SETTING_RANGES,
   type DepthSource,
   type GenerationMode,
   type GenerationSettings,
   type MaterialPreset,
   type PresentationSettings,
+  type PrintPreset,
   type ViewportBackground,
 } from '@core/models/generation.model';
 import type { ComplexityEstimate } from '@core/models/estimate';
@@ -56,6 +59,7 @@ export class SettingsPanel {
   readonly settingsChange = output<Partial<GenerationSettings>>();
   readonly presentationChange = output<Partial<PresentationSettings>>();
   readonly modeChange = output<GenerationMode>();
+  readonly printPresetChange = output<PrintPreset>();
   readonly autoGenerateChange = output<boolean>();
   readonly regenerate = output<void>();
 
@@ -88,6 +92,18 @@ export class SettingsPanel {
   ];
 
   protected readonly integerFormat = (value: number): string => String(Math.round(value));
+
+  /** Every length in the panel is a real dimension, so it says so. */
+  protected readonly millimetreFormat = (value: number): string => `${round1(value)} mm`;
+
+  protected readonly presetOptions: readonly Option<PrintPreset>[] = PRINT_PRESET_OPTIONS.map(
+    (preset) => ({ id: preset.id, label: preset.label }),
+  );
+
+  /** What the chosen preset does, shown under the picker. */
+  protected readonly presetSummary = computed(
+    () => PRINT_PRESET_CATALOG[this.settings().printPreset].summary,
+  );
 
   /**
    * The one action a first-time user is looking for.
@@ -148,9 +164,18 @@ export class SettingsPanel {
     this.modeChange.emit(mode);
   }
 
+  protected setPrintPreset(preset: PrintPreset): void {
+    this.printPresetChange.emit(preset);
+  }
+
   protected onColorInput(event: Event): void {
     this.presentationChange.emit({
       solidColor: (event.target as HTMLInputElement).value,
     });
   }
+}
+
+/** Millimetre readouts only need one decimal place to be useful. */
+function round1(value: number): number {
+  return Math.round(value * 10) / 10;
 }

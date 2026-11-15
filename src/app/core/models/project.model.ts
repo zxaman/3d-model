@@ -1,7 +1,7 @@
 import type { GenerationMode, GenerationSettings, PresentationSettings } from './generation.model';
 
 /** Schema version baked into every persisted record — the migration handle. */
-export const PROJECT_SCHEMA_VERSION = 1;
+export const PROJECT_SCHEMA_VERSION = 2;
 
 /** Trimmed-down record used to render the gallery grid. */
 export interface ProjectSummary {
