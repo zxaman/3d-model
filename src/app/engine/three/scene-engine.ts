@@ -19,6 +19,7 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { InjectionToken } from '@angular/core';
 import type { ViewportBackground } from '../../core/models/generation.model';
 
 export interface SceneEngineOptions {
@@ -27,6 +28,42 @@ export interface SceneEngineOptions {
   readonly grid?: boolean;
   readonly autoRotate?: boolean;
 }
+
+/**
+ * The slice of {@link SceneEngine} the viewport component uses.
+ *
+ * Depending on the interface (and on a factory for it) keeps the component
+ * testable without a GPU: a fake engine can stand in and assert that models
+ * actually reach the scene.
+ */
+export interface ViewportEngine {
+  readonly content: Object3D | null;
+  setContent(object: Object3D | null): void;
+  setBackground(background: ViewportBackground): void;
+  setGrid(visible: boolean): void;
+  setAutoRotate(enabled: boolean): void;
+  frameContent(): void;
+  resize(): void;
+  snapshot(): string;
+  dispose(): void;
+}
+
+export interface ViewportEngineFactory {
+  /** Whether this browser can provide a WebGL context at all. */
+  isSupported(): boolean;
+  create(options: SceneEngineOptions): ViewportEngine;
+}
+
+export const VIEWPORT_ENGINE_FACTORY = new InjectionToken<ViewportEngineFactory>(
+  'VIEWPORT_ENGINE_FACTORY',
+  {
+    providedIn: 'root',
+    factory: (): ViewportEngineFactory => ({
+      isSupported: () => SceneEngine.isSupported(),
+      create: (options) => new SceneEngine(options),
+    }),
+  },
+);
 
 let supportProbe: boolean | null = null;
 
@@ -48,7 +85,7 @@ const BACKGROUND_COLORS: Readonly<Record<ViewportBackground, Color | null>> = {
  * moved, the auto-rotate is running, or something in the scene changed — which
  * keeps a laptop fan quiet while the user is reading the settings panel.
  */
-export class SceneEngine {
+export class SceneEngine implements ViewportEngine {
   readonly scene = new Scene();
   readonly camera: PerspectiveCamera;
   readonly renderer: WebGLRenderer;

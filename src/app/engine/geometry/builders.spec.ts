@@ -164,6 +164,34 @@ describe('builders', () => {
     });
   });
 
+  it('gives each voxel column its own texture coordinate', () => {
+    // Regression: the cube emitter passed no UVs, so every vertex collapsed
+    // onto (0, 0) and a textured voxel build came out as one flat dark colour.
+    const size = 5;
+    const payload = build({ mode: 'voxel', voxelLayers: 6 }, size, gradientPixels(size));
+
+    expect(payload.uvs).not.toBeNull();
+
+    const uvs = payload.uvs!;
+    const distinct = new Set<string>();
+    for (let i = 0; i < uvs.length; i += 2) {
+      distinct.add(`${uvs[i]},${uvs[i + 1]}`);
+    }
+
+    // More than one source pixel is sampled, and every coordinate is in range.
+    expect(distinct.size).toBeGreaterThan(1);
+    for (const value of uvs) {
+      expect(value).toBeGreaterThanOrEqual(0);
+      expect(value).toBeLessThanOrEqual(1);
+    }
+
+    // Every corner of a cube agrees, so a cube stays a single flat colour.
+    for (let i = 0; i < uvs.length; i += 6) {
+      expect(uvs[i]).toBe(uvs[i + 2]);
+      expect(uvs[i + 1]).toBe(uvs[i + 3]);
+    }
+  });
+
   describe('extrude', () => {
     it('emits flat-shaded, non-indexed geometry', () => {
       const payload = build({ mode: 'extrude', base: true });

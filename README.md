@@ -210,9 +210,15 @@ and the viewport explains why it is blank.
 npm run test:ci
 ```
 
-67 unit tests covering the parts where a silent error would be expensive: height
+98 unit tests covering the parts where a silent error would be expensive: height
 field maths, geometry winding and counts, attribute alignment, persistence and
-re-validation, storage quota handling, and the studio/gallery routes.
+re-validation, storage quota handling, the studio and gallery routes, and the
+viewport's contract with the three.js engine (which is injectable precisely so
+that contract can be tested without a GPU).
+
+Rendering itself is not covered by unit tests — jsdom has no WebGL. It was
+verified in headless Chromium instead: upload, all four modes, live
+regeneration, save, reopen from the gallery, and GLB/OBJ/STL/PLY export.
 
 ---
 

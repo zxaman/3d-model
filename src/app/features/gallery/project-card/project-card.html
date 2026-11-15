@@ -2,7 +2,7 @@
   <a
     class="project-card__thumb"
     [routerLink]="['/studio']"
-    [queryParams]="{ id: project().id }"
+    [queryParams]="{ projectId: project().id }"
     [attr.aria-label]="'Open ' + project().name + ' in the studio'"
   >
     <img [src]="project().thumbnail" [alt]="''" loading="lazy" decoding="async" />
@@ -34,7 +34,7 @@
       i3dButton="secondary"
       [size]="'sm'"
       [routerLink]="['/studio']"
-      [queryParams]="{ id: project().id }"
+      [queryParams]="{ projectId: project().id }"
     >
       Open
     </a>

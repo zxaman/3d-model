@@ -10,7 +10,7 @@ import {
 } from '../image/depth-field';
 import type { GenerationMode, GenerationPhase } from '../model';
 import { PLANE_SIZE } from '../model';
-import { MeshBuffers } from './buffers';
+import { MeshBuffers, type Vec2 } from './buffers';
 import type { MeshPayload } from './mesh-payload';
 
 /**
@@ -323,6 +323,7 @@ function buildExtrude(context: BuildContext): MeshPayload {
       }
 
       writeLinearColor(pixels, j * width + i, color);
+
       const x0 = xAt(i);
       const x1 = xAt(i + 1);
       const z0 = zAt(j);
@@ -408,6 +409,9 @@ function buildVoxel(context: BuildContext): MeshPayload {
 
       writeLinearColor(pixels, j * width + i, color);
 
+      // Same convention as the relief surface: u runs with i, v is flipped.
+      const uv: Vec2 = [(i + 0.5) / cellsX, 1 - (j + 0.5) / cellsY];
+
       let previousEmitted = false;
       for (let level = 1; level <= columnHeight; level++) {
         // Emit only what can be seen: the top of the stack and any cube whose
@@ -419,14 +423,25 @@ function buildVoxel(context: BuildContext): MeshPayload {
         }
 
         const cy = (level - 1) * stepY + halfY;
-        emitBox(buffers, cx, cy, cz, halfX, halfY, halfZ, color, {
-          px: heightAt(i + 1, j) < level,
-          nx: heightAt(i - 1, j) < level,
-          pz: heightAt(i, j + 1) < level,
-          nz: heightAt(i, j - 1) < level,
-          py: level === columnHeight,
-          ny: level === 1 || !previousEmitted,
-        });
+        emitBox(
+          buffers,
+          cx,
+          cy,
+          cz,
+          halfX,
+          halfY,
+          halfZ,
+          color,
+          {
+            px: heightAt(i + 1, j) < level,
+            nx: heightAt(i - 1, j) < level,
+            pz: heightAt(i, j + 1) < level,
+            nz: heightAt(i, j - 1) < level,
+            py: level === columnHeight,
+            ny: level === 1 || !previousEmitted,
+          },
+          uv,
+        );
 
         previousEmitted = true;
       }
@@ -456,6 +471,14 @@ interface BoxFaces {
  * Corner orders follow the right-hand rule so normals point outwards; interior
  * faces are skipped, which typically halves the triangle count of a voxel model.
  */
+/**
+ * Emits the visible faces of one box.
+ *
+ * Every corner of every face shares a single UV, so a cube takes the flat
+ * colour of the source pixel it stands on — the pixel-art look people expect
+ * from a voxel build, and the reason the faces must not be UV-mapped
+ * individually (that would smear the image across each cube).
+ */
 function emitBox(
   buffers: MeshBuffers,
   cx: number,
@@ -466,7 +489,10 @@ function emitBox(
   hz: number,
   color: number[],
   faces: BoxFaces,
+  uv: Vec2,
 ): void {
+  const corners: readonly Vec2[] = [uv, uv, uv, uv];
+
   if (faces.px) {
     buffers.flatQuad(
       [cx + hx, cy - hy, cz + hz],
@@ -474,6 +500,7 @@ function emitBox(
       [cx + hx, cy + hy, cz - hz],
       [cx + hx, cy + hy, cz + hz],
       color,
+      corners,
     );
   }
   if (faces.nx) {
@@ -483,6 +510,7 @@ function emitBox(
       [cx - hx, cy + hy, cz + hz],
       [cx - hx, cy + hy, cz - hz],
       color,
+      corners,
     );
   }
   if (faces.py) {
@@ -492,6 +520,7 @@ function emitBox(
       [cx + hx, cy + hy, cz - hz],
       [cx - hx, cy + hy, cz - hz],
       color,
+      corners,
     );
   }
   if (faces.ny) {
@@ -501,6 +530,7 @@ function emitBox(
       [cx + hx, cy - hy, cz + hz],
       [cx - hx, cy - hy, cz + hz],
       color,
+      corners,
     );
   }
   if (faces.pz) {
@@ -510,6 +540,7 @@ function emitBox(
       [cx + hx, cy + hy, cz + hz],
       [cx - hx, cy + hy, cz + hz],
       color,
+      corners,
     );
   }
   if (faces.nz) {
@@ -519,6 +550,7 @@ function emitBox(
       [cx - hx, cy + hy, cz - hz],
       [cx + hx, cy + hy, cz - hz],
       color,
+      corners,
     );
   }
 }
